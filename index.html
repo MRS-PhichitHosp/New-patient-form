@@ -470,7 +470,7 @@ function head(container, title, sub){
 }
 
 function renderPersonal(p){
-  head(p,'ข้อมูลส่วนตัว','กรอกตามบัตรประชาชนของท่าน — โรงพยาบาลพิจิตร');
+  head(p,'ข้อมูลส่วนตัว','กรอกตามบัตรประชาชนของท่าน — โรงพยาบาลพิจิตร[cite: 2]');
   const g=el(`<div class="grid"></div>`);
   
   const prefixContainer = document.createElement('div');
@@ -569,12 +569,10 @@ function renderPersonal(p){
       data.religionOther = '';
       religionOtherInput.value = '';
     }
-    updateCard();
   });
   religionOtherInput.addEventListener('input', (e) => {
     if(isSubmitted) return;
     data.religionOther = e.target.value;
-    updateCard();
   });
 
   const dobInput = p.querySelector('[data-b="dob"]');
@@ -609,7 +607,7 @@ function renderContact(p){
 }
 
 function renderEmergency(p){
-  head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน');
+  head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน[cite: 2]');
   const g=el(`<div class="grid"></div>`);
   g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name" ${isSubmitted?'disabled':''}>`,{required:true,name:'ec_name'})));
   
@@ -661,7 +659,7 @@ function renderEmergency(p){
 }
 
 function renderPhoto(p){
-  head(p,'แนบรูปถ่าย','รูปถ่ายหน้าตรงของผู้ป่วย ใช้สำหรับออกบัตรผู้ป่วยโรงพยาบาลพิจิตร');
+  head(p,'แนบรูปถ่าย','รูปถ่ายหน้าตรงของผู้ป่วย ใช้สำหรับออกบัตรผู้ป่วยโรงพยาบาลพิจิตร[cite: 2]');
   const wrap=el(`<div class="photo-upload">
       <div class="photo-box" id="photoBoxBig">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -688,7 +686,7 @@ function renderPhoto(p){
 }
 
 function renderReview(p){
-  head(p,'ตรวจสอบข้อมูลและส่งออก','ตรวจสอบความถูกต้องก่อนส่งข้อมูลให้เจ้าหน้าที่ห้องบัตร โรงพยาบาลพิจิตร');
+  head(p,'ตรวจสอบข้อมูลและส่งออก','ตรวจสอบความถูกต้องก่อนส่งข้อมูลให้เจ้าหน้าที่ห้องบัตร โรงพยาบาลพิจิตร[cite: 2]');
 
   const sec=(title,i,rows)=>{
     const s=el(`<div class="review-section"></div>`);
@@ -741,10 +739,10 @@ function renderReview(p){
   const consent=el(`<div class="consent-box">
       <div class="checkrow">
         <input type="checkbox" id="consentChk" ${data.consent?'checked':''} ${isSubmitted?'disabled':''}>
-        <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล</label>
+        <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล[cite: 2]</label>
       </div>
       <div class="notice-edit">
-        (เมื่อกดบันทึกแล้วไม่สามารถแก้ไขข้อมูลได้ ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียนเบอร์ 18 อาคารอำนวยการ โรงพยาบาลพิจิตร)
+        (เมื่อกดบันทึกแล้วไม่สามารถแก้ไขข้อมูลได้ ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียนเบอร์ 18 อาคารอำนวยการ โรงพยาบาลพิจิตร[cite: 2])
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
         ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย" ${isSubmitted?'disabled':''}>`,{name:'signName'})}
