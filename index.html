@@ -379,7 +379,7 @@
 /* ---------------- state ---------------- */
 const data = {
   id:'', createdAt:'', printed:false, printedAt:'',
-  prefix:'', prefixOther:'', firstname:'', lastname:'', fatherName:'', motherName:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
+  prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', fatherName:'', motherName:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
   addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'พิจิตร', addr_zip:'', phone:'',
   ec_name:'', ec_relation:'', ec_relationOther:'', ec_addr:'', ec_phone:'',
   photoDataUrl:'',
@@ -579,12 +579,12 @@ function renderPersonal(p){
 
   g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง" ${isSubmitted?'disabled':''}>`,{required:true,name:'firstname'})));
   g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname" ${isSubmitted?'disabled':''}>`,{required:true,name:'lastname'})));
+  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   
-  // เพิ่มช่องชื่อบิดาและมารดา
+  // จัดให้ชื่อบิดาและมารดาอยู่คู่กัน
   g.appendChild(el(field('ชื่อ-นามสกุล บิดา', `<input type="text" data-b="fatherName" placeholder="ระบุชื่อ-นามสกุลบิดา" ${isSubmitted?'disabled':''}>`,{name:'fatherName'})));
   g.appendChild(el(field('ชื่อ-นามสกุล มารดา', `<input type="text" data-b="motherName" placeholder="ระบุชื่อ-นามสกุลมารดา" ${isSubmitted?'disabled':''}>`,{name:'motherName'})));
 
-  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled':''}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
@@ -788,9 +788,9 @@ function renderReview(p){
   const fullPrefix = data.prefix === 'อื่นๆ' ? data.prefixOther : data.prefix;
   p.appendChild(sec('ข้อมูลส่วนตัว',0,[
     ['ชื่อ-นามสกุล', esc(`${fullPrefix} ${data.firstname} ${data.lastname}`.trim())],
+    ['เลขบัตรประชาชน', esc(data.nid)],
     ['ชื่อ-นามสกุล บิดา', esc(data.fatherName)],
     ['ชื่อ-นามสกุล มารดา', esc(data.motherName)],
-    ['เลขบัตรประชาชน', esc(data.nid)],
     ['วันเกิด', data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':''],
     ['เพศ', esc(data.gender)],
     ['สถานภาพสมรส', esc(data.marital)],
