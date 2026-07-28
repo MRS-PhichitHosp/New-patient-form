@@ -379,7 +379,7 @@
 /* ---------------- state ---------------- */
 const data = {
   id:'', createdAt:'', printed:false, printedAt:'',
-  prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
+  prefix:'', prefixOther:'', firstname:'', lastname:'', fatherName:'', motherName:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
   addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'พิจิตร', addr_zip:'', phone:'',
   ec_name:'', ec_relation:'', ec_relationOther:'', ec_addr:'', ec_phone:'',
   photoDataUrl:'',
@@ -453,7 +453,6 @@ function commitSubmission(){
     data.id = 'P-' + Date.now();
     data.createdAt = new Date().toISOString();
   }
-  // check if exists update or push
   const idx = list.findIndex(item => item.id === data.id);
   if(idx >= 0){
     list[idx] = JSON.parse(JSON.stringify(data));
@@ -545,7 +544,6 @@ function nav(container){
     });
     wrap.appendChild(next);
   } else {
-    // หน้าสุดท้าย ไม่ต้องมีปุ่มถัดไป
     wrap.appendChild(el(`<div></div>`));
   }
   container.appendChild(wrap);
@@ -581,8 +579,12 @@ function renderPersonal(p){
 
   g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง" ${isSubmitted?'disabled':''}>`,{required:true,name:'firstname'})));
   g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname" ${isSubmitted?'disabled':''}>`,{required:true,name:'lastname'})));
-  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   
+  // เพิ่มช่องชื่อบิดาและมารดา
+  g.appendChild(el(field('ชื่อ-นามสกุล บิดา', `<input type="text" data-b="fatherName" placeholder="ระบุชื่อ-นามสกุลบิดา" ${isSubmitted?'disabled':''}>`,{name:'fatherName'})));
+  g.appendChild(el(field('ชื่อ-นามสกุล มารดา', `<input type="text" data-b="motherName" placeholder="ระบุชื่อ-นามสกุลมารดา" ${isSubmitted?'disabled':''}>`,{name:'motherName'})));
+
+  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled':''}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
@@ -786,6 +788,8 @@ function renderReview(p){
   const fullPrefix = data.prefix === 'อื่นๆ' ? data.prefixOther : data.prefix;
   p.appendChild(sec('ข้อมูลส่วนตัว',0,[
     ['ชื่อ-นามสกุล', esc(`${fullPrefix} ${data.firstname} ${data.lastname}`.trim())],
+    ['ชื่อ-นามสกุล บิดา', esc(data.fatherName)],
+    ['ชื่อ-นามสกุล มารดา', esc(data.motherName)],
     ['เลขบัตรประชาชน', esc(data.nid)],
     ['วันเกิด', data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':''],
     ['เพศ', esc(data.gender)],
@@ -1007,22 +1011,18 @@ function openStaffModal(){
   renderModalContent(todayStr);
 }
 
-// Global function for printing specific patient from staff portal
 window.printPatientDoc = function(id){
   const submissions = getAllSubmissions();
   const item = submissions.find(s => s.id === id);
   if(!item) return;
 
-  // Mark as printed
   item.printed = true;
   item.printedAt = new Date().toISOString();
   saveAllSubmissions(submissions);
 
-  // Build print area and trigger print
   buildPrintAreaFromData(item);
   window.print();
 
-  // Refresh staff modal table
   openStaffModal();
 };
 
@@ -1045,6 +1045,8 @@ function buildPrintAreaFromData(patientData){
     <div class="p-sec"><h3>ข้อมูลส่วนตัว</h3><div class="p-grid">
       <div><b>ชื่อ-นามสกุล:</b> ${esc(`${fullPrefix} ${patientData.firstname} ${patientData.lastname}`.trim())}</div>
       <div><b>เลขบัตรประชาชน:</b> ${esc(patientData.nid)}</div>
+      <div><b>บิดา:</b> ${esc(patientData.fatherName) || '-'}</div>
+      <div><b>มารดา:</b> ${esc(patientData.motherName) || '-'}</div>
       <div><b>วัน เดือน ปี เกิด:</b> ${patientData.dob? esc(thaiDate(patientData.dob))+' (อายุ '+calcAge(patientData.dob)+')':'-'}</div>
       <div><b>เพศ:</b> ${esc(patientData.gender)}</div>
       <div><b>สถานภาพสมรส:</b> ${esc(patientData.marital)||'-'}</div>
@@ -1083,7 +1085,6 @@ function buildPrintAreaFromData(patientData){
   `;
 }
 
-/* ---------------- boot ---------------- */
 function renderAll(){
   renderSteps();
   renderPanel();
@@ -1093,7 +1094,6 @@ function renderAll(){
 
 document.getElementById('btnStaffPortal').addEventListener('click', openStaffModal);
 document.getElementById('openStaffModalBtn').addEventListener('click', () => {
-  // Easter egg: click 3 times quickly or directly open staff modal
   openStaffModal();
 });
 
