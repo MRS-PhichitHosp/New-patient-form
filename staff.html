@@ -198,7 +198,9 @@ function getAllSubmissions(){
   }catch(e){ return []; }
 }
 function saveAllSubmissions(list){
-  try{ localStorage.setItem(STORAGE_SUBMISSIONS, JSON.stringify(list)); }catch(e)++;} // syntax fix
+  try{ 
+    localStorage.setItem(STORAGE_SUBMISSIONS, JSON.stringify(list)); 
+  }catch(e){} 
 }
 
 function initStaffDashboard(){
@@ -262,8 +264,7 @@ window.printPatientDoc = function(id){
 
   item.printed = true;
   item.printedAt = new Date().toISOString();
-  // save back
-  try{ localStorage.setItem(STORAGE_SUBMISSIONS, JSON.stringify(submissions)); }catch(e){}
+  saveAllSubmissions(submissions);
 
   buildPrintAreaFromData(item);
   window.print();
