@@ -394,7 +394,7 @@ function renderSteps(){
       <div class="step-label">${s.label}</div>
     </div>`);
     item.addEventListener('click',()=>{ 
-      if(isSubmitted) { alert('ข้อมูลนี้ถูกบันทึกส่งออกแล้ว ไม่สามารถแก้ไขได้'); return; }
+      if(isSubmitted) return;
       if(i<current){ current=i; renderAll(); } 
       else if(i===current+1){ if(validateStep(current)){current=i; renderAll();} } 
     });
@@ -456,7 +456,6 @@ function nav(container){
   if(current < steps.length-1){
     const next=el(`<button class="btn btn-primary" type="button">ถัดไป ›</button>`);
     next.addEventListener('click',()=>{ 
-      if(isSubmitted) { alert('ข้อมูลถูกบันทึกไปแล้ว'); current++; renderAll(); return; }
       if(validateStep(current)){ current++; renderAll(); } 
     });
     wrap.appendChild(next);
@@ -480,7 +479,7 @@ function renderPersonal(p){
   prefixContainer.dataset.field = 'prefix';
   prefixContainer.innerHTML = `
     <label>คำนำหน้า<span class="req"> *</span></label>
-    <select id="prefixSelect" data-b="prefix" ${isSubmitted?'disabled':''}>
+    <select id="prefixSelect" data-b="prefix">
       <option value="">เลือกคำนำหน้า</option>
       <option value="นาย">นาย</option>
       <option value="นาง">นาง</option>
@@ -489,35 +488,35 @@ function renderPersonal(p){
       <option value="ด.ญ.">ด.ญ.</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="prefixOtherInput" data-b="prefixOther" placeholder="ระบุคำนำหน้าอื่นๆ" style="margin-top:6px; display:${data.prefix === 'อื่นๆ' ? 'block' : 'none'};" value="${data.prefixOther || ''}" ${isSubmitted?'disabled':''}>
+    <input type="text" id="prefixOtherInput" data-b="prefixOther" placeholder="ระบุคำนำหน้าอื่นๆ" style="margin-top:6px; display:${data.prefix === 'อื่นๆ' ? 'block' : 'none'};" value="${data.prefixOther || ''}">
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(prefixContainer);
 
-  g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง" ${isSubmitted?'disabled':''}>`,{required:true,name:'firstname'})));
-  g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname" ${isSubmitted?'disabled':''}>`,{required:true,name:'lastname'})));
-  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
+  g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง">`,{required:true,name:'firstname'})));
+  g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname">`,{required:true,name:'lastname'})));
+  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric">`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   
-  g.appendChild(el(field('ชื่อ-นามสกุล บิดา', `<input type="text" data-b="fatherName" placeholder="ระบุชื่อ-นามสกุลบิดา" ${isSubmitted?'disabled':''}>`,{name:'fatherName'})));
-  g.appendChild(el(field('ชื่อ-นามสกุล มารดา', `<input type="text" data-b="motherName" placeholder="ระบุชื่อ-นามสกุลมารดา" ${isSubmitted?'disabled':''}>`,{name:'motherName'})));
+  g.appendChild(el(field('ชื่อ-นามสกุล บิดา', `<input type="text" data-b="fatherName" placeholder="ระบุชื่อ-นามสกุลบิดา">`,{name:'fatherName'})));
+  g.appendChild(el(field('ชื่อ-นามสกุล มารดา', `<input type="text" data-b="motherName" placeholder="ระบุชื่อ-นามสกุลมารดา">`,{name:'motherName'})));
 
-  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled':''}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
+  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob"><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
-      <label><input type="radio" name="gender" value="ชาย" data-b="gender" ${isSubmitted?'disabled':''}> ชาย</label>
-      <label><input type="radio" name="gender" value="หญิง" data-b="gender" ${isSubmitted?'disabled':''}> หญิง</label>
-      <label><input type="radio" name="gender" value="อื่นๆ" data-b="gender" ${isSubmitted?'disabled':''}> อื่นๆ</label>
+      <label><input type="radio" name="gender" value="ชาย" data-b="gender"> ชาย</label>
+      <label><input type="radio" name="gender" value="หญิง" data-b="gender"> หญิง</label>
+      <label><input type="radio" name="gender" value="อื่นๆ" data-b="gender"> อื่นๆ</label>
     </div>`,{required:true,name:'gender'})));
-  g.appendChild(el(field('สถานภาพสมรส', `<select data-b="marital" ${isSubmitted?'disabled':''}><option value="">เลือก</option><option>โสด</option><option>สมรส</option><option>หย่าร้าง</option><option>หม้าย</option></select>`,{name:'marital'})));
-  g.appendChild(el(field('เชื้อชาติ', `<input type="text" data-b="ethnicity" value="ไทย" ${isSubmitted?'disabled':''}>`,{name:'ethnicity'})));
-  g.appendChild(el(field('สัญชาติ', `<input type="text" data-b="nationality" value="ไทย" ${isSubmitted?'disabled':''}>`,{name:'nationality'})));
+  g.appendChild(el(field('สถานภาพสมรส', `<select data-b="marital"><option value="">เลือก</option><option>โสด</option><option>สมรส</option><option>หย่าร้าง</option><option>หม้าย</option></select>`,{name:'marital'})));
+  g.appendChild(el(field('เชื้อชาติ', `<input type="text" data-b="ethnicity" value="ไทย">`,{name:'ethnicity'})));
+  g.appendChild(el(field('สัญชาติ', `<input type="text" data-b="nationality" value="ไทย">`,{name:'nationality'})));
   
   const religionContainer = document.createElement('div');
   religionContainer.className = 'field';
   religionContainer.dataset.field = 'religion';
   religionContainer.innerHTML = `
     <label>ศาสนา</label>
-    <select id="religionSelect" data-b="religion" ${isSubmitted?'disabled':''}>
+    <select id="religionSelect" data-b="religion">
       <option value="">เลือกศาสนา</option>
       <option value="พุทธ">พุทธ</option>
       <option value="คริสต์">คริสต์</option>
@@ -526,13 +525,13 @@ function renderPersonal(p){
       <option value="ซิกข์">ซิกข์</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="religionOtherInput" data-b="religionOther" placeholder="ระบุศาสนาอื่นๆ" style="margin-top:6px; display:${data.religion === 'อื่นๆ' ? 'block' : 'none'};" value="${data.religionOther || ''}" ${isSubmitted?'disabled':''}>
+    <input type="text" id="religionOtherInput" data-b="religionOther" placeholder="ระบุศาสนาอื่นๆ" style="margin-top:6px; display:${data.religion === 'อื่นๆ' ? 'block' : 'none'};" value="${data.religionOther || ''}">
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(religionContainer);
 
-  g.appendChild(el(field('หมู่เลือด', `<select data-b="blood" ${isSubmitted?'disabled':''}><option value="">ไม่ทราบ</option><option>A</option><option>B</option><option>AB</option><option>O</option></select>`,{name:'blood'})));
-  g.appendChild(el(field('ประวัติแพ้ยา', `<input type="text" data-b="allergyDrug" placeholder="ระบุชื่อยา หรือ 'ไม่มี'" ${isSubmitted?'disabled':''}>`,{name:'allergyDrug',full:true,required:true})));
+  g.appendChild(el(field('หมู่เลือด', `<select data-b="blood"><option value="">ไม่ทราบ</option><option>A</option><option>B</option><option>AB</option><option>O</option></select>`,{name:'blood'})));
+  g.appendChild(el(field('ประวัติแพ้ยา', `<input type="text" data-b="allergyDrug" placeholder="ระบุชื่อยา หรือ 'ไม่มี'">`,{name:'allergyDrug',full:true,required:true})));
   
   p.appendChild(g);
   wireInputs(p);
@@ -541,7 +540,6 @@ function renderPersonal(p){
   const prefixOtherInput = p.querySelector('#prefixOtherInput');
   if(data.prefix) prefixSelect.value = data.prefix;
   prefixSelect.addEventListener('change', (e) => {
-    if(isSubmitted) return;
     data.prefix = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       prefixOtherInput.style.display = 'block';
@@ -553,7 +551,6 @@ function renderPersonal(p){
     updateCard();
   });
   prefixOtherInput.addEventListener('input', (e) => {
-    if(isSubmitted) return;
     data.prefixOther = e.target.value;
     updateCard();
   });
@@ -562,7 +559,6 @@ function renderPersonal(p){
   const religionOtherInput = p.querySelector('#religionOtherInput');
   if(data.religion) religionSelect.value = data.religion;
   religionSelect.addEventListener('change', (e) => {
-    if(isSubmitted) return;
     data.religion = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       religionOtherInput.style.display = 'block';
@@ -573,7 +569,6 @@ function renderPersonal(p){
     }
   });
   religionOtherInput.addEventListener('input', (e) => {
-    if(isSubmitted) return;
     data.religionOther = e.target.value;
   });
 
@@ -596,13 +591,13 @@ function renderPersonal(p){
 function renderContact(p){
   head(p,'ข้อมูลการติดต่อ','ที่อยู่ปัจจุบันและเบอร์โทรที่ติดต่อได้');
   const g=el(`<div class="grid"></div>`);
-  g.appendChild(el(field('บ้านเลขที่', `<input type="text" data-b="addr_no" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_no'})));
-  g.appendChild(el(field('หมู่ที่', `<input type="text" data-b="addr_moo" ${isSubmitted?'disabled':''}>`,{name:'addr_moo'})));
-  g.appendChild(el(field('ตำบล / แขวง', `<input type="text" data-b="addr_tambon" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_tambon'})));
-  g.appendChild(el(field('อำเภอ / เขต', `<input type="text" data-b="addr_amphoe" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_amphoe'})));
-  g.appendChild(el(field('จังหวัด', `<input type="text" data-b="addr_province" value="พิจิตร" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_province'})));
-  g.appendChild(el(field('รหัสไปรษณีย์', `<input type="text" data-b="addr_zip" maxlength="5" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_zip'})));
-  g.appendChild(el(field('เบอร์โทรศัพท์มือถือที่ติดต่อได้', `<input type="tel" data-b="phone" inputmode="tel" ${isSubmitted?'disabled':''}>`,{required:true,name:'phone',full:true})));
+  g.appendChild(el(field('บ้านเลขที่', `<input type="text" data-b="addr_no">`,{required:true,name:'addr_no'})));
+  g.appendChild(el(field('หมู่ที่', `<input type="text" data-b="addr_moo">`,{name:'addr_moo'})));
+  g.appendChild(el(field('ตำบล / แขวง', `<input type="text" data-b="addr_tambon">`,{required:true,name:'addr_tambon'})));
+  g.appendChild(el(field('อำเภอ / เขต', `<input type="text" data-b="addr_amphoe">`,{required:true,name:'addr_amphoe'})));
+  g.appendChild(el(field('จังหวัด', `<input type="text" data-b="addr_province" value="พิจิตร">`,{required:true,name:'addr_province'})));
+  g.appendChild(el(field('รหัสไปรษณีย์', `<input type="text" data-b="addr_zip" maxlength="5" inputmode="numeric">`,{required:true,name:'addr_zip'})));
+  g.appendChild(el(field('เบอร์โทรศัพท์มือถือที่ติดต่อได้', `<input type="tel" data-b="phone" inputmode="tel">`,{required:true,name:'phone',full:true})));
   p.appendChild(g);
   wireInputs(p);
   nav(p);
@@ -611,14 +606,14 @@ function renderContact(p){
 function renderEmergency(p){
   head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน');
   const g=el(`<div class="grid"></div>`);
-  g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name" ${isSubmitted?'disabled':''}>`,{required:true,name:'ec_name'})));
+  g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name">`,{required:true,name:'ec_name'})));
   
   const relContainer = document.createElement('div');
   relContainer.className = 'field';
   relContainer.dataset.field = 'ec_relation';
   relContainer.innerHTML = `
     <label>ความสัมพันธ์<span class="req"> *</span></label>
-    <select id="ecRelationSelect" data-b="ec_relation" ${isSubmitted?'disabled':''}>
+    <select id="ecRelationSelect" data-b="ec_relation">
       <option value="">เลือกความสัมพันธ์</option>
       <option value="บิดา">บิดา</option>
       <option value="มารดา">มารดา</option>
@@ -627,13 +622,13 @@ function renderEmergency(p){
       <option value="ญาติ">ญาติ</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="ecRelationOtherInput" data-b="ec_relationOther" placeholder="ระบุความสัมพันธ์อื่นๆ" style="margin-top:6px; display:${data.ec_relation === 'อื่นๆ' ? 'block' : 'none'};" value="${data.ec_relationOther || ''}" ${isSubmitted?'disabled':''}>
+    <input type="text" id="ecRelationOtherInput" data-b="ec_relationOther" placeholder="ระบุความสัมพันธ์อื่นๆ" style="margin-top:6px; display:${data.ec_relation === 'อื่นๆ' ? 'block' : 'none'};" value="${data.ec_relationOther || ''}">
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(relContainer);
 
-  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="ec_addr" placeholder="ที่อยู่ (ถ้ามี)" ${isSubmitted?'disabled':''}>`,{name:'ec_addr',full:true})));
-  g.appendChild(el(field('เบอร์โทรศัพท์', `<input type="tel" data-b="ec_phone" ${isSubmitted?'disabled':''}>`,{required:true,name:'ec_phone',full:true})));
+  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="ec_addr" placeholder="ที่อยู่ (ถ้ามี)">`,{name:'ec_addr',full:true})));
+  g.appendChild(el(field('เบอร์โทรศัพท์', `<input type="tel" data-b="ec_phone">`,{required:true,name:'ec_phone',full:true})));
   
   p.appendChild(g);
   wireInputs(p);
@@ -642,7 +637,6 @@ function renderEmergency(p){
   const ecRelationOtherInput = p.querySelector('#ecRelationOtherInput');
   if(data.ec_relation) ecRelationSelect.value = data.ec_relation;
   ecRelationSelect.addEventListener('change', (e) => {
-    if(isSubmitted) return;
     data.ec_relation = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       ecRelationOtherInput.style.display = 'block';
@@ -653,7 +647,6 @@ function renderEmergency(p){
     }
   });
   ecRelationOtherInput.addEventListener('input', (e) => {
-    if(isSubmitted) return;
     data.ec_relationOther = e.target.value;
   });
 
@@ -667,8 +660,8 @@ function renderPhoto(p){
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
       </div>
       <div>
-        <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none" ${isSubmitted?'disabled':''}>
-        <button class="btn btn-primary" type="button" id="photoBtn" ${isSubmitted?'disabled':''}>ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
+        <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none">
+        <button class="btn btn-primary" type="button" id="photoBtn">ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
         <p class="hint" style="margin-top:10px;max-width:320px;">รองรับไฟล์ JPG หรือ PNG ขนาดไม่เกิน 5MB บนมือถือจะเปิดกล้องหน้าให้ถ่ายภาพตัวเองได้ทันที หรือเลือกรูปจากคลังภาพก็ได้</p>
       </div>
     </div>`);
@@ -676,7 +669,6 @@ function renderPhoto(p){
   if(data.photoDataUrl) wrap.querySelector('#photoBoxBig').innerHTML=`<img src="${data.photoDataUrl}">`;
   wrap.querySelector('#photoBtn').addEventListener('click',()=>wrap.querySelector('#photoInput').click());
   wrap.querySelector('#photoInput').addEventListener('change',(e)=>{
-    if(isSubmitted) return;
     const file=e.target.files[0];
     if(!file) return;
     if(file.size > 5*1024*1024){ alert('ไฟล์มีขนาดใหญ่เกิน 5MB กรุณาเลือกไฟล์ใหม่'); return; }
@@ -692,7 +684,7 @@ function renderReview(p){
 
   const sec=(title,i,rows)=>{
     const s=el(`<div class="review-section"></div>`);
-    s.appendChild(el(`<h3>${title} ${!isSubmitted? `<button type="button" data-goto="${i}">แก้ไข</button>`:''}</h3>`));
+    s.appendChild(el(`<h3>${title} <button type="button" data-goto="${i}">แก้ไข</button></h3>`));
     const g=el(`<div class="review-grid"></div>`);
     rows.forEach(r=>{ if(r) g.appendChild(el(`<div class="k">${r[0]}</div><div class="v ${r[2]?'full':''}">${r[1]||'—'}</div>`)); });
     s.appendChild(g);
@@ -728,73 +720,62 @@ function renderReview(p){
   ]));
 
   const photoSec=el(`<div class="review-section"></div>`);
-  photoSec.appendChild(el(`<h3>รูปถ่าย ${!isSubmitted? `<button type="button" data-goto="3">แก้ไข</button>`:''}</h3>`));
+  photoSec.appendChild(el(`<h3>รูปถ่าย <button type="button" data-goto="3">แก้ไข</button></h3>`));
   photoSec.appendChild(data.photoDataUrl? el(`<img src="${data.photoDataUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">`) : el(`<p class="hint">ยังไม่ได้แนบรูปถ่าย</p>`));
   p.appendChild(photoSec);
 
   p.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>{ 
-    if(isSubmitted) return;
     current=parseInt(btn.dataset.goto); 
     renderAll(); 
   }));
 
   const consent=el(`<div class="consent-box">
       <div class="checkrow">
-        <input type="checkbox" id="consentChk" ${data.consent?'checked':''} ${isSubmitted?'disabled':''}>
+        <input type="checkbox" id="consentChk" ${data.consent?'checked':''}>
         <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล</label>
       </div>
       <div class="notice-edit">
-        (เมื่อกดบันทึกแล้วไม่สามารถแก้ไขข้อมูลได้ ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียน อาคารอำนวยการ โรงพยาบาลพิจิตร)
+        (เมื่อกดบันทึกแล้วข้อมูลจะถูกส่งเข้าระบบทันที และฟอร์มจะเตรียมพร้อมสำหรับกรอกข้อมูลคนต่อไป)
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
-        ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย" ${isSubmitted?'disabled':''}>`,{name:'signName'})}
-        ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)" ${isSubmitted?'disabled':''}>`,{name:'infoGiverName'})}
+        ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย">`,{name:'signName'})}
+        ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)">`,{name:'infoGiverName'})}
       </div>
     </div>`);
   p.appendChild(consent);
   consent.querySelector('#consentChk').addEventListener('change',e=>{ 
-    if(isSubmitted) return;
     data.consent=e.target.checked; 
     saveDraft(); 
   });
   wireInputs(consent);
 
-  const actions=el(`<div class="footer-nav" style="flex-wrap:wrap;gap:10px;"></div>`);
+  const actions=el(`<div class="footer-nav" style="justify-content:space-between;align-items:center;"></div>`);
   const back=el(`<button class="btn btn-ghost" type="button">‹ ย้อนกลับ</button>`);
-  back.addEventListener('click',()=>{if(!isSubmitted){current--; renderAll();}});
+  back.addEventListener('click',()=>{ current--; renderAll(); });
   
-  const rightBtns = el(`<div style="display:flex; gap:10px; flex-wrap:wrap;"></div>`);
-  
-  if(!isSubmitted){
-    const saveBtn = el(`<button class="btn btn-amber" type="button">💾 บันทึกข้อมูล</button>`);
-    saveBtn.addEventListener('click', ()=>{
-      if(!document.getElementById('consentChk').checked){
-        alert('กรุณากดยินยอมรับรองข้อมูลก่อนบันทึก');
-        return;
-      }
-      if(!data.signName.trim()){
-        alert('กรุณาพิมพ์ชื่อ-นามสกุลผู้ป่วยเพื่อลงชื่อยืนยันก่อนบันทึก');
-        return;
-      }
-      commitSubmission();
-      alert('บันทึกข้อมูลสำเร็จ! ข้อมูลถูกส่งเข้าฐานข้อมูลของห้องเวชระเบียนเรียบร้อยแล้ว');
-      renderAll();
-    });
-    rightBtns.appendChild(saveBtn);
-  } else {
-    const nextPersonBtn = el(`<button class="btn btn-primary" type="button">🔄 บันทึกข้อมูลและกรอกคนต่อไป</button>`);
-    nextPersonBtn.addEventListener('click', ()=>{
-      try{ localStorage.removeItem(STORAGE_CURRENT); }catch(e){}
-      data = JSON.parse(JSON.stringify(initialData));
-      isSubmitted = false;
-      current = 0;
-      renderAll();
-    });
-    rightBtns.appendChild(nextPersonBtn);
-  }
+  const saveNextBtn = el(`<button class="btn btn-amber" type="button" style="font-size:15px; padding:12px 24px;">💾 บันทึกข้อมูลและกรอกข้อมูลคนต่อไป</button>`);
+  saveNextBtn.addEventListener('click', ()=>{
+    if(!document.getElementById('consentChk').checked){
+      alert('กรุณากดยินยอมรับรองข้อมูลก่อนบันทึก');
+      return;
+    }
+    if(!data.signName.trim()){
+      alert('กรุณาพิมพ์ชื่อ-นามสกุลผู้ป่วยเพื่อลงชื่อยืนยันก่อนบันทึก');
+      return;
+    }
+    commitSubmission();
+    alert('บันทึกข้อมูลสำเร็จ! ระบบกำลังรีเซตเพื่อกรอกข้อมูลคนต่อไป');
+    
+    // รีเซตค่าทั้งหมดกลับเป็นค่าเริ่มต้นสำหรับคนถัดไป
+    try{ localStorage.removeItem(STORAGE_CURRENT); }catch(e){}
+    data = JSON.parse(JSON.stringify(initialData));
+    isSubmitted = false;
+    current = 0;
+    renderAll();
+  });
 
   actions.appendChild(back);
-  actions.appendChild(rightBtns);
+  actions.appendChild(saveNextBtn);
   p.appendChild(actions);
 }
 
@@ -803,7 +784,7 @@ function wireInputs(container){
     const name=inp.dataset.b;
     if(['prefix','prefixOther','religion','religionOther','ec_relation','ec_relationOther'].includes(name)) return;
     if(inp.type==='radio'){ if(data[name]===inp.value) inp.checked=true; inp.addEventListener('change',bind(name)); }
-    else if(inp.type==='checkbox'){ inp.checked=!!data[name]; inp.addEventListener('change',(e)=>{if(!isSubmitted){data[name]=e.target.checked; updateCard();}}); }
+    else if(inp.type==='checkbox'){ inp.checked=!!data[name]; inp.addEventListener('change',(e)=>{ data[name]=e.target.checked; updateCard(); }); }
     else { inp.value = data[name]||''; inp.addEventListener('input', bind(name)); }
   });
 }
@@ -816,7 +797,6 @@ const requiredByStep = {
   4:[]
 };
 function validateStep(i){
-  if(isSubmitted) return true;
   const need = requiredByStep[i]||[];
   let ok=true;
   need.forEach(name=>{
