@@ -199,8 +199,8 @@
     background:var(--teal-100);padding:3px 10px;border-radius:20px;font-weight:600;
   }
 
-  .checkrow{display:flex;align-items:center;gap:8px;margin:4px 0 14px;}
-  .checkrow input{width:16px;height:16px;}
+  .checkrow{display:flex;align-items:flex-start;gap:8px;margin:4px 0 14px;}
+  .checkrow input{width:16px;height:16px;margin-top:3px;}
   .checkrow label{margin:0;font-size:13.5px;color:var(--ink);}
 
   .radiorow{display:flex;gap:18px;flex-wrap:wrap;}
@@ -230,30 +230,35 @@
   .btn-ghost:hover{background:var(--teal-100);}
   .btn-amber{background:var(--amber);color:#fff;}
   .btn-amber:hover{filter:brightness(1.06);}
+  .btn-success{background:#2E7D32;color:#fff;}
+  .btn-success:hover{filter:brightness(1.06);}
   .btn:disabled{opacity:.45;cursor:not-allowed;}
 
   .footer-nav{display:flex;justify-content:space-between;margin-top:26px;padding-top:18px;border-top:1px solid var(--line);}
 
   /* Review */
-  .review-section{margin-bottom:18px;}
-  .review-section h3{font-size:14.5px;color:var(--teal-900);margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;}
-  .review-section h3 button{font-size:12px;color:var(--teal-600);background:none;border:none;cursor:pointer;font-family:'Sarabun',sans-serif;text-decoration:underline;}
-  .review-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:13.5px;}
+  .review-section{margin-bottom:14px;}
+  .review-section h3{font-size:14px;color:var(--teal-900);margin:0 0 6px;display:flex;align-items:center;justify-content:space-between;}
+  .review-section h3 button{font-size:11.5px;color:var(--teal-600);background:none;border:none;cursor:pointer;font-family:'Sarabun',sans-serif;text-decoration:underline;}
+  .review-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:13px;}
   .review-grid .k{color:var(--ink-soft);}
   .review-grid .v{color:var(--ink);font-weight:500;}
   .review-grid .full{grid-column:1/-1;}
   @media (max-width:560px){.review-grid{grid-template-columns:1fr;}}
 
   .consent-box{
-    background:var(--teal-100);border-radius:12px;padding:16px;margin-top:8px;
+    background:var(--teal-100);border-radius:12px;padding:14px;margin-top:6px;
+  }
+  .notice-edit{
+    margin-top:8px;font-size:12.5px;color:var(--error);font-weight:600;background:#FDF3F2;padding:8px 12px;border-radius:8px;border:1px dashed #E5B3AE;
   }
 
-  /* ===== Print stylesheet (A5 Landscape) ===== */
+  /* ===== Print stylesheet (A5 Landscape - Exactly 1 page) ===== */
   #printArea{display:none;}
   @media print{
     @page {
       size: A5 landscape;
-      margin: 10mm;
+      margin: 6mm;
     }
     body *{visibility:hidden;}
     #printArea, #printArea *{visibility:visible;}
@@ -261,27 +266,28 @@
       display:block;
       position:absolute;
       top:0;left:0;
-      width:210mm;
-      height:148mm;
-      padding:10mm;
+      width:198mm;
+      height:136mm;
+      padding:4mm;
       font-family:'Sarabun',sans-serif;
       color:#111;
       box-sizing:border-box;
+      overflow:hidden;
     }
-    .p-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #0F3D3E;padding-bottom:8px;margin-bottom:10px;}
-    .p-head h1{font-size:15px;margin:0;color:#0F3D3E;font-family:'Prompt',sans-serif;}
-    .p-head p{margin:2px 0 0;font-size:10px;color:#555;}
-    .p-photo{width:65px;height:80px;object-fit:cover;border:1px solid #ccc;border-radius:4px;}
-    .p-sec{margin-bottom:10px;page-break-inside:avoid;}
-    .p-sec h3{font-size:11.5px;background:#E5F1EE;color:#0F3D3E;padding:3px 6px;margin:0 0 5px;border-radius:3px;}
-    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px 14px;font-size:10.5px;}
-    .p-grid div{padding:2px 0;border-bottom:1px dotted #ddd;}
+    .p-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1.5px solid #0F3D3E;padding-bottom:4px;margin-bottom:6px;}
+    .p-head h1{font-size:13.5px;margin:0;color:#0F3D3E;font-family:'Prompt',sans-serif;}
+    .p-head p{margin:1px 0 0;font-size:9px;color:#555;}
+    .p-photo{width:50px;height:60px;object-fit:cover;border:1px solid #ccc;border-radius:3px;}
+    .p-sec{margin-bottom:6px;}
+    .p-sec h3{font-size:10.5px;background:#E5F1EE;color:#0F3D3E;padding:2px 5px;margin:0 0 3px;border-radius:2px;}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px 12px;font-size:9.5px;}
+    .p-grid div{padding:1px 0;border-bottom:1px dotted #ddd;}
     .p-grid b{color:#0F3D3E;}
-    .p-staff{margin-top:10px;border:1.5px dashed #C98A3E;border-radius:6px;padding:8px 10px;font-size:10px;}
-    .p-staff h3{font-size:11px;color:#8a5a1f;margin:0 0 6px;}
-    .p-staff .row{display:flex;gap:20px;margin-bottom:10px;flex-wrap:wrap;}
-    .p-staff .row div{flex:1;min-width:120px;border-bottom:1px solid #999;padding-bottom:10px;}
-    .p-sign{margin-top:12px;font-size:10.5px;display:flex;justify-content:space-between;}
+    .p-staff{margin-top:6px;border:1px dashed #C98A3E;border-radius:4px;padding:6px 8px;font-size:9px;}
+    .p-staff h3{font-size:9.5px;color:#8a5a1f;margin:0 0 4px;}
+    .p-staff .row{display:flex;gap:15px;margin-bottom:4px;}
+    .p-staff .row div{flex:1;border-bottom:1px solid #999;padding-bottom:6px;}
+    .p-sign{margin-top:6px;font-size:9.5px;display:flex;justify-content:space-between;}
   }
 </style>
 </head>
@@ -335,8 +341,8 @@
 <script>
 /* ---------------- state ---------------- */
 const data = {
-  prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', blood:'', allergyDrug:'',
-  addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'', addr_zip:'', phone:'',
+  prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
+  addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'พิจิตร', addr_zip:'', phone:'',
   ec_name:'', ec_relation:'', ec_relationOther:'', ec_addr:'', ec_phone:'',
   photoDataUrl:'',
   consent:false, signName:'', infoGiverName:''
@@ -373,6 +379,22 @@ function thaiDate(dob){
   return d.getDate()+' '+months[d.getMonth()]+' '+(d.getFullYear()+543);
 }
 
+/* ---------------- localStorage persistence ---------------- */
+const STORAGE_KEY = 'phichit_hosp_patient_data_v2';
+function saveToStorage(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+}
+function loadFromStorage(){
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved){
+      const parsed = JSON.parse(saved);
+      Object.keys(parsed).forEach(k => { data[k] = parsed[k]; });
+    }
+  }catch(e){}
+}
+loadFromStorage();
+
 /* ---------------- sidebar steps ---------------- */
 function renderSteps(){
   const box=document.getElementById('stepsList');
@@ -400,6 +422,7 @@ function updateCard(){
   const photoBox=document.getElementById('idcardPhotoBox');
   if(data.photoDataUrl){ photoBox.innerHTML = `<img src="${data.photoDataUrl}">`; }
   else { photoBox.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>`; }
+  saveToStorage();
 }
 
 /* ---------------- field builder ---------------- */
@@ -431,15 +454,26 @@ function renderPanel(){
 
 function nav(container){
   const wrap=el(`<div class="footer-nav"></div>`);
-  const back=el(`<button class="btn btn-ghost">‹ ย้อนกลับ</button>`);
+  const back=el(`<button class="btn btn-ghost" type="button">‹ ย้อนกลับ</button>`);
   back.disabled = current===0;
   back.addEventListener('click',()=>{ if(current>0){current--; renderAll();} });
   wrap.appendChild(back);
+
+  const rightBtns = el(`<div style="display:flex; gap:10px; flex-wrap:wrap;"></div>`);
+  
+  const saveBtn = el(`<button class="btn btn-primary" type="button">💾 บันทึกข้อมูล</button>`);
+  saveBtn.addEventListener('click', ()=>{
+    saveToStorage();
+    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+  });
+  rightBtns.appendChild(saveBtn);
+
   if(current < steps.length-1){
-    const next=el(`<button class="btn btn-primary">ถัดไป ›</button>`);
+    const next=el(`<button class="btn btn-primary" type="button">ถัดไป ›</button>`);
     next.addEventListener('click',()=>{ if(validateStep(current)){ current++; renderAll(); } });
-    wrap.appendChild(next);
+    rightBtns.appendChild(next);
   }
+  wrap.appendChild(rightBtns);
   container.appendChild(wrap);
 }
 
@@ -461,7 +495,7 @@ function renderPersonal(p){
       <option value="">เลือกคำนำหน้า</option>
       <option value="นาย">นาย</option>
       <option value="นาง">นาง</option>
-      <option value="นางสาว">นางสาว</option>
+      <option value="น.ส.">น.ส.</option>
       <option value="เด็กชาย">เด็กชาย</option>
       <option value="เด็กหญิง">เด็กหญิง</option>
       <option value="อื่นๆ">อื่นๆ</option>
@@ -475,7 +509,7 @@ function renderPersonal(p){
   g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname">`,{required:true,name:'lastname'})));
   g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric">`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   
-  g.appendChild(el(field('วัน เดือน ปี เกิด (พ.ศ.)', `<input type="date" data-b="dob"><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะแปลงเป็นปี พ.ศ. และคำนวณอายุให้อัตโนมัติ'})));
+  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob"><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
       <label><input type="radio" name="gender" value="ชาย" data-b="gender"> ชาย</label>
@@ -485,7 +519,26 @@ function renderPersonal(p){
   g.appendChild(el(field('สถานภาพสมรส', `<select data-b="marital"><option value="">เลือก</option><option>โสด</option><option>สมรส</option><option>หย่าร้าง</option><option>หม้าย</option></select>`,{name:'marital'})));
   g.appendChild(el(field('เชื้อชาติ', `<input type="text" data-b="ethnicity" value="ไทย">`,{name:'ethnicity'})));
   g.appendChild(el(field('สัญชาติ', `<input type="text" data-b="nationality" value="ไทย">`,{name:'nationality'})));
-  g.appendChild(el(field('ศาสนา', `<input type="text" data-b="religion">`,{name:'religion'})));
+  
+  const religionContainer = document.createElement('div');
+  religionContainer.className = 'field';
+  religionContainer.dataset.field = 'religion';
+  religionContainer.innerHTML = `
+    <label>ศาสนา</label>
+    <select id="religionSelect" data-b="religion">
+      <option value="">เลือกศาสนา</option>
+      <option value="พุทธ">พุทธ</option>
+      <option value="คริสต์">คริสต์</option>
+      <option value="อิสลาม">อิสลาม</option>
+      <option value="พราหมณ์-ฮินดู">พราหมณ์-ฮินดู</option>
+      <option value="ซิกข์">ซิกข์</option>
+      <option value="อื่นๆ">อื่นๆ</option>
+    </select>
+    <input type="text" id="religionOtherInput" data-b="religionOther" placeholder="ระบุศาสนาอื่นๆ" style="margin-top:6px; display:${data.religion === 'อื่นๆ' ? 'block' : 'none'};" value="${data.religionOther || ''}">
+    <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
+  `;
+  g.appendChild(religionContainer);
+
   g.appendChild(el(field('หมู่เลือด', `<select data-b="blood"><option value="">ไม่ทราบ</option><option>A</option><option>B</option><option>AB</option><option>O</option></select>`,{name:'blood'})));
   g.appendChild(el(field('ประวัติแพ้ยา', `<input type="text" data-b="allergyDrug" placeholder="ระบุชื่อยา หรือ 'ไม่มี'">`,{name:'allergyDrug',full:true,required:true})));
   
@@ -494,6 +547,7 @@ function renderPersonal(p){
 
   const prefixSelect = p.querySelector('#prefixSelect');
   const prefixOtherInput = p.querySelector('#prefixOtherInput');
+  if(data.prefix) prefixSelect.value = data.prefix;
   prefixSelect.addEventListener('change', (e) => {
     data.prefix = e.target.value;
     if(e.target.value === 'อื่นๆ'){
@@ -507,6 +561,25 @@ function renderPersonal(p){
   });
   prefixOtherInput.addEventListener('input', (e) => {
     data.prefixOther = e.target.value;
+    updateCard();
+  });
+
+  const religionSelect = p.querySelector('#religionSelect');
+  const religionOtherInput = p.querySelector('#religionOtherInput');
+  if(data.religion) religionSelect.value = data.religion;
+  religionSelect.addEventListener('change', (e) => {
+    data.religion = e.target.value;
+    if(e.target.value === 'อื่นๆ'){
+      religionOtherInput.style.display = 'block';
+    } else {
+      religionOtherInput.style.display = 'none';
+      data.religionOther = '';
+      religionOtherInput.value = '';
+    }
+    updateCard();
+  });
+  religionOtherInput.addEventListener('input', (e) => {
+    data.religionOther = e.target.value;
     updateCard();
   });
 
@@ -565,7 +638,7 @@ function renderEmergency(p){
   `;
   g.appendChild(relContainer);
 
-  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="addr_ec" placeholder="ที่อยู่ (ถ้ามี)">`,{name:'ec_addr',full:true})));
+  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="ec_addr" placeholder="ที่อยู่ (ถ้ามี)">`,{name:'ec_addr',full:true})));
   g.appendChild(el(field('เบอร์โทรศัพท์', `<input type="tel" data-b="ec_phone">`,{required:true,name:'ec_phone',full:true})));
   
   p.appendChild(g);
@@ -573,6 +646,7 @@ function renderEmergency(p){
 
   const ecRelationSelect = p.querySelector('#ecRelationSelect');
   const ecRelationOtherInput = p.querySelector('#ecRelationOtherInput');
+  if(data.ec_relation) ecRelationSelect.value = data.ec_relation;
   ecRelationSelect.addEventListener('change', (e) => {
     data.ec_relation = e.target.value;
     if(e.target.value === 'อื่นๆ'){
@@ -598,7 +672,7 @@ function renderPhoto(p){
       </div>
       <div>
         <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none">
-        <button class="btn btn-primary" id="photoBtn" type="button">ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
+        <button class="btn btn-primary" type="button" id="photoBtn">ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
         <p class="hint" style="margin-top:10px;max-width:320px;">รองรับไฟล์ JPG หรือ PNG ขนาดไม่เกิน 5MB บนมือถือจะเปิดกล้องหน้าให้ถ่ายภาพตัวเองได้ทันที หรือเลือกรูปจากคลังภาพก็ได้</p>
       </div>
     </div>`);
@@ -632,11 +706,11 @@ function renderReview(p){
   p.appendChild(sec('ข้อมูลส่วนตัว',0,[
     ['ชื่อ-นามสกุล', esc(`${fullPrefix} ${data.firstname} ${data.lastname}`.trim())],
     ['เลขบัตรประชาชน', esc(data.nid)],
-    ['วันเกิด (พ.ศ.)', data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':''],
+    ['วันเกิด', data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':''],
     ['เพศ', esc(data.gender)],
     ['สถานภาพสมรส', esc(data.marital)],
     ['เชื้อชาติ / สัญชาติ', esc(`${data.ethnicity} / ${data.nationality}`)],
-    ['ศาสนา', esc(data.religion)],
+    ['ศาสนา', esc(data.religion === 'อื่นๆ' ? data.religionOther : data.religion)],
     ['หมู่เลือด', esc(data.blood)||'ไม่ทราบ'],
     ['ประวัติแพ้ยา', esc(data.allergyDrug), true],
   ]));
@@ -656,36 +730,51 @@ function renderReview(p){
 
   const photoSec=el(`<div class="review-section"></div>`);
   photoSec.appendChild(el(`<h3>รูปถ่าย <button type="button" data-goto="3">แก้ไข</button></h3>`));
-  photoSec.appendChild(data.photoDataUrl? el(`<img src="${data.photoDataUrl}" style="width:96px;height:96px;object-fit:cover;border-radius:10px;border:1px solid var(--line);">`) : el(`<p class="hint">ยังไม่ได้แนบรูปถ่าย</p>`));
+  photoSec.appendChild(data.photoDataUrl? el(`<img src="${data.photoDataUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">`) : el(`<p class="hint">ยังไม่ได้แนบรูปถ่าย</p>`));
   p.appendChild(photoSec);
 
   p.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>{ current=parseInt(btn.dataset.goto); renderAll(); }));
 
   const consent=el(`<div class="consent-box">
-      <div class="checkrow" style="margin-bottom:10px;">
+      <div class="checkrow">
         <input type="checkbox" id="consentChk" ${data.consent?'checked':''}>
         <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล</label>
       </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <div class="notice-edit">
+        (ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียนเบอร์ 18 อาคารอำนวยการ โรงพยาบาลพิจิตร)
+      </div>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
         ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย">`,{name:'signName'})}
         ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)">`,{name:'infoGiverName'})}
       </div>
     </div>`);
   p.appendChild(consent);
-  consent.querySelector('#consentChk').addEventListener('change',e=>{ data.consent=e.target.checked; });
+  consent.querySelector('#consentChk').addEventListener('change',e=>{ data.consent=e.target.checked; saveToStorage(); });
   wireInputs(consent);
 
   const actions=el(`<div class="footer-nav" style="flex-wrap:wrap;gap:10px;"></div>`);
-  const back=el(`<button class="btn btn-ghost">‹ ย้อนกลับ</button>`);
+  const back=el(`<button class="btn btn-ghost" type="button">‹ ย้อนกลับ</button>`);
   back.addEventListener('click',()=>{current--; renderAll();});
-  const printBtn=el(`<button class="btn btn-amber">🖨️ พิมพ์ / บันทึกเป็น PDF (ขนาด A5 แนวนอน)</button>`);
+  
+  const rightBtns = el(`<div style="display:flex; gap:10px; flex-wrap:wrap;"></div>`);
+  
+  const saveBtn = el(`<button class="btn btn-primary" type="button">💾 บันทึกข้อมูล</button>`);
+  saveBtn.addEventListener('click', ()=>{
+    saveToStorage();
+    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+  });
+  rightBtns.appendChild(saveBtn);
+
+  const printBtn=el(`<button class="btn btn-success" type="button">🖨️ บันทึกและพิมพ์สำหรับเจ้าหน้าที่ รพ.</button>`);
   printBtn.addEventListener('click',()=>{
     if(!validateReview()) return;
     buildPrintArea();
     setTimeout(()=>window.print(),80);
   });
+  rightBtns.appendChild(printBtn);
+
   actions.appendChild(back);
-  actions.appendChild(printBtn);
+  actions.appendChild(rightBtns);
   p.appendChild(actions);
 }
 
@@ -705,7 +794,7 @@ function validateReview(){
 function wireInputs(container){
   container.querySelectorAll('[data-b]').forEach(inp=>{
     const name=inp.dataset.b;
-    if(name === 'prefix' || name === 'prefixOther' || name === 'ec_relation' || name === 'ec_relationOther') return;
+    if(['prefix','prefixOther','religion','religionOther','ec_relation','ec_relationOther'].includes(name)) return;
     if(inp.type==='radio'){ if(data[name]===inp.value) inp.checked=true; inp.addEventListener('change',bind(name)); }
     else if(inp.type==='checkbox'){ inp.checked=!!data[name]; inp.addEventListener('change',(e)=>{data[name]=e.target.checked; updateCard();}); }
     else { inp.value = data[name]||''; inp.addEventListener('input', bind(name)); }
@@ -732,6 +821,9 @@ function validateStep(i){
   if(i===0 && data.prefix === 'อื่นๆ' && !data.prefixOther.trim()){
     ok = false;
   }
+  if(i===0 && data.religion === 'อื่นๆ' && !data.religionOther.trim()){
+    ok = false;
+  }
   if(i===0 && data.nid && !/^\d{13}$/.test(data.nid)){
     const fe=document.querySelector('[data-field="nid"]');
     if(fe){ fe.classList.add('invalid'); fe.querySelector('.err-msg').textContent='เลขบัตรประชาชนต้องมี 13 หลัก'; }
@@ -749,6 +841,7 @@ function buildPrintArea(){
   const pa=document.getElementById('printArea');
   const now=new Date();
   const fullPrefix = data.prefix === 'อื่นๆ' ? data.prefixOther : data.prefix;
+  const fullReligion = data.religion === 'อื่นๆ' ? data.religionOther : data.religion;
   const fullEcRelation = data.ec_relation === 'อื่นๆ' ? data.ec_relationOther : data.ec_relation;
 
   pa.innerHTML=`
@@ -763,11 +856,11 @@ function buildPrintArea(){
     <div class="p-sec"><h3>ข้อมูลส่วนตัว</h3><div class="p-grid">
       <div><b>ชื่อ-นามสกุล:</b> ${esc(`${fullPrefix} ${data.firstname} ${data.lastname}`.trim())}</div>
       <div><b>เลขบัตรประชาชน:</b> ${esc(data.nid)}</div>
-      <div><b>วันเกิด (พ.ศ.):</b> ${data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':'-'}</div>
+      <div><b>วัน เดือน ปี เกิด:</b> ${data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':'-'}</div>
       <div><b>เพศ:</b> ${esc(data.gender)}</div>
       <div><b>สถานภาพสมรส:</b> ${esc(data.marital)||'-'}</div>
       <div><b>เชื้อชาติ/สัญชาติ:</b> ${esc(data.ethnicity)} / ${esc(data.nationality)}</div>
-      <div><b>ศาสนา:</b> ${esc(data.religion)||'-'}</div>
+      <div><b>ศาสนา:</b> ${esc(fullReligion)||'-'}</div>
       <div><b>หมู่เลือด:</b> ${esc(data.blood)||'ไม่ทราบ'}</div>
       <div style="grid-column:1/-1;"><b>ประวัติแพ้ยา:</b> ${esc(data.allergyDrug)}</div>
     </div></div>
