@@ -45,11 +45,11 @@
   .auth-box h2{color:var(--teal-900);margin-top:0;font-size:20px;}
   .auth-box p{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;}
   .auth-box input{
-    width:100%;padding:12px;font-size:18px;text-align:center;
+    width:100%;padding:12px;font-size:20px;text-align:center;
     border:2px solid var(--line);border-radius:10px;margin-bottom:14px;
-    font-family:'Prompt',sans-serif;letter-spacing:4px;
+    font-family:'Prompt',sans-serif;letter-spacing:6px; background:#FAFAFA;
   }
-  .auth-box input:focus{border-color:var(--teal-600);outline:none;}
+  .auth-box input:focus{border-color:var(--teal-600);outline:none;background:#fff;}
   .btn{
     font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;
     border-radius:9px;padding:10px 18px;border:none;cursor:pointer;width:100%;
@@ -125,7 +125,8 @@
     <h2>🔒 เข้าสู่ระบบเจ้าหน้าที่</h2>
     <p>โรงพยาบาลพิจิตร</p>
     <form id="authForm">
-      <input type="password" id="pinInput" placeholder="•••••" maxlength="5" autocomplete="current-password" required autofocus>
+      <!-- เปลี่ยนเป็น type="text" ให้เห็นตัวอักษรชัดเจนตอนพิมพ์ -->
+      <input type="text" id="pinInput" placeholder="10726" maxlength="5" autocomplete="off" required autofocus>
       <button type="submit" class="btn">เข้าสู่ระบบ</button>
     </form>
     <div id="authErr" style="color:var(--error);font-size:13px;margin-top:10px;display:none;">รหัสผ่านไม่ถูกต้อง!</div>
@@ -138,7 +139,6 @@
       <h1>ระบบจัดการสำหรับเจ้าหน้าที่ห้องเวชระเบียน</h1>
       <p>โรงพยาบาลพิจิตร — ตรวจสอบรายชื่อ, พิมพ์เอกสาร และดาวน์โหลดรูปถ่ายผู้ป่วย</p>
     </div>
-    <button class="btn btn-ghost" onclick="logout()" style="background:#fff; color:var(--teal-900);">ออกจากระบบ</button>
   </div>
 
   <div class="card">
@@ -176,7 +176,7 @@ const CORRECT_PIN = "10726";
 
 document.getElementById('authForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const pin = document.getElementById('pinInput').value;
+  const pin = document.getElementById('pinInput').value.trim();
   if(pin === CORRECT_PIN){
     document.getElementById('authOverlay').style.display = 'none';
     document.getElementById('mainContent').style.display = 'block';
@@ -188,10 +188,6 @@ document.getElementById('authForm').addEventListener('submit', (e) => {
     document.getElementById('pinInput').focus();
   }
 });
-
-function logout(){
-  location.reload();
-}
 
 const STORAGE_SUBMISSIONS = 'phichit_all_submissions_v3';
 function getAllSubmissions(){
@@ -245,7 +241,6 @@ function renderTable(filterDate){
       ? `<span class="badge-status badge-printed">พิมพ์แล้ว (${new Date(item.printedAt).toLocaleTimeString('th-TH')})</span>` 
       : `<span class="badge-status badge-unprinted">ยังไม่เคยพิมพ์</span>`;
 
-    // สร้างปุ่มดาวน์โหลดรูปภาพ
     let photoActionBtn = `<span class="btn-disabled">ไม่มีรูปถ่าย</span>`;
     if (item.photoDataUrl) {
       const fileName = `patient_${item.nid || item.firstname || index}.jpg`;
