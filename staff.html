@@ -57,7 +57,7 @@
   }
   .btn:hover{filter:brightness(1.1);}
 
-  .container{max-width:1100px;margin:30px auto;padding:0 20px;}
+  .container{max-width:1150px;margin:30px auto;padding:0 20px;}
   .header{
     background:var(--teal-900);color:#fff;padding:20px 24px;border-radius:14px;
     display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;
@@ -76,11 +76,14 @@
   
   .btn-ghost{background:transparent;color:var(--teal-900);border:1.5px solid var(--line);width:auto;padding:8px 14px;}
   .btn-ghost:hover{background:var(--teal-100);}
-  .btn-primary{background:var(--teal-900);color:#fff;width:auto;padding:6px 12px;font-size:13px;}
+  .btn-primary{background:var(--teal-900);color:#fff;width:auto;padding:6px 12px;font-size:13px;margin-bottom:4px;display:inline-block;}
+  .btn-success{background:#2E7D32;color:#fff;width:auto;padding:6px 12px;font-size:13px;display:inline-block;text-decoration:none;border-radius:9px;border:none;cursor:pointer;}
+  .btn-success:hover{filter:brightness(1.1);}
+  .btn-disabled{background:#ccc;color:#666;width:auto;padding:6px 12px;font-size:13px;display:inline-block;border-radius:9px;border:none;cursor:not-allowed;}
 
   .table-responsive{width:100%;overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:14px;}
-  th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;}
+  th,td{border:1px solid var(--line);padding:10px 12px;text-align:left;vertical-align:middle;}
   th{background:var(--teal-100);color:var(--teal-900);font-family:'Prompt',sans-serif;}
   .badge-status{padding:3px 8px;border-radius:4px;font-size:11.5px;font-weight:600;}
   .badge-printed{background:#E8F5E9;color:#2E7D32;}
@@ -133,7 +136,7 @@
   <div class="header">
     <div>
       <h1>ระบบจัดการสำหรับเจ้าหน้าที่ห้องเวชระเบียน</h1>
-      <p>โรงพยาบาลพิจิตร — ตรวจสอบรายชื่อและพิมพ์เอกสารผู้ป่วยใหม่ล่วงหน้า</p>
+      <p>โรงพยาบาลพิจิตร — ตรวจสอบรายชื่อ, พิมพ์เอกสาร และดาวน์โหลดรูปถ่ายผู้ป่วย</p>
     </div>
     <button class="btn btn-ghost" onclick="logout()" style="background:#fff; color:var(--teal-900);">ออกจากระบบ</button>
   </div>
@@ -157,7 +160,7 @@
             <th>ชื่อ</th>
             <th>สกุล</th>
             <th>วันที่กรอกข้อมูล / สถานะการพิมพ์</th>
-            <th>จัดการ</th>
+            <th>จัดการ / ดาวน์โหลดรูป</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -242,6 +245,13 @@ function renderTable(filterDate){
       ? `<span class="badge-status badge-printed">พิมพ์แล้ว (${new Date(item.printedAt).toLocaleTimeString('th-TH')})</span>` 
       : `<span class="badge-status badge-unprinted">ยังไม่เคยพิมพ์</span>`;
 
+    // สร้างปุ่มดาวน์โหลดรูปภาพ
+    let photoActionBtn = `<span class="btn-disabled">ไม่มีรูปถ่าย</span>`;
+    if (item.photoDataUrl) {
+      const fileName = `patient_${item.nid || item.firstname || index}.jpg`;
+      photoActionBtn = `<a class="btn-success" href="${item.photoDataUrl}" download="${fileName}">📥 ดาวน์โหลดรูป</a>`;
+    }
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${index + 1}</td>
@@ -250,7 +260,8 @@ function renderTable(filterDate){
       <td>${esc(item.lastname)}</td>
       <td>${dateFormatted}<br><small style="color:#666;">${statusBadge}</small></td>
       <td>
-        <button class="btn btn-primary" onclick="printPatientDoc('${item.id}')">🖨️ พิมพ์เอกสาร PDF</button>
+        <button class="btn btn-primary" onclick="printPatientDoc('${item.id}')">🖨️ พิมพ์เอกสาร PDF</button><br>
+        ${photoActionBtn}
       </td>
     `;
     tbody.appendChild(tr);
