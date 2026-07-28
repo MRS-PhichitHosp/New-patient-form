@@ -298,7 +298,7 @@
 </div>
 
 <script>
-const data = {
+const initialData = {
   id:'', createdAt:'', printed:false, printedAt:'',
   prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', fatherName:'', motherName:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
   addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'พิจิตร', addr_zip:'', phone:'',
@@ -306,6 +306,8 @@ const data = {
   photoDataUrl:'',
   consent:false, signName:'', infoGiverName:''
 };
+
+let data = JSON.parse(JSON.stringify(initialData));
 
 const steps = [
   {id:'personal', label:'ข้อมูลส่วนตัว'},
@@ -775,13 +777,20 @@ function renderReview(p){
         return;
       }
       commitSubmission();
-      alert('บันทึกข้อมูลสำเร็จ! ข้อมูลถูกส่งเข้าฐานข้อมูลของห้องเวชระเบียนเรียบร้อยแล้ว (ไม่สามารถแก้ไขข้อมูลได้อีก)');
+      alert('บันทึกข้อมูลสำเร็จ! ข้อมูลถูกส่งเข้าฐานข้อมูลของห้องเวชระเบียนเรียบร้อยแล้ว');
       renderAll();
     });
     rightBtns.appendChild(saveBtn);
   } else {
-    const lockedMsg = el(`<span style="color:#2E7D32; font-weight:600; display:flex; align-items:center;">✔️ บันทึกข้อมูลเรียบร้อยแล้ว</span>`);
-    rightBtns.appendChild(lockedMsg);
+    const nextPersonBtn = el(`<button class="btn btn-primary" type="button">🔄 บันทึกข้อมูลและกรอกคนต่อไป</button>`);
+    nextPersonBtn.addEventListener('click', ()=>{
+      try{ localStorage.removeItem(STORAGE_CURRENT); }catch(e){}
+      data = JSON.parse(JSON.stringify(initialData));
+      isSubmitted = false;
+      current = 0;
+      renderAll();
+    });
+    rightBtns.appendChild(nextPersonBtn);
   }
 
   actions.appendChild(back);
