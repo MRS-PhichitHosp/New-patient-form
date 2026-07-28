@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบจัดการเจ้าหน้าที่ห้องเวชระเบียน - โรงพยาบาลพิจิตร</title>
+<title>ระบบจัดการสำหรับเจ้าหน้าที่ห้องเวชระเบียน - โรงพยาบาลพิจิตร</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@500;600;700&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -88,9 +88,11 @@
   .btn-ghost{background:transparent;color:var(--teal-900);border:1.5px solid var(--line);width:auto;padding:8px 14px;}
   .btn-ghost:hover{background:var(--teal-100);}
   .btn-primary{background:var(--teal-900);color:#fff;width:auto;padding:6px 12px;font-size:13px;margin-bottom:4px;display:inline-block;}
-  .btn-success{background:#2E7D32;color:#fff;width:auto;padding:6px 12px;font-size:13px;display:inline-block;text-decoration:none;border-radius:9px;border:none;cursor:pointer;}
+  .btn-success{background:#2E7D32;color:#fff;width:auto;padding:6px 12px;font-size:13px;display:inline-block;text-decoration:none;border-radius:9px;border:none;cursor:pointer;margin-bottom:4px;}
   .btn-success:hover{filter:brightness(1.1);}
-  .btn-disabled{background:#ccc;color:#666;width:auto;padding:6px 12px;font-size:13px;display:inline-block;border-radius:9px;border:none;cursor:not-allowed;}
+  .btn-danger{background:var(--error);color:#fff;width:auto;padding:6px 12px;font-size:13px;display:inline-block;text-decoration:none;border-radius:9px;border:none;cursor:pointer;}
+  .btn-danger:hover{filter:brightness(1.1);}
+  .btn-disabled{background:#ccc;color:#666;width:auto;padding:6px 12px;font-size:13px;display:inline-block;border-radius:9px;border:none;cursor:not-allowed;margin-bottom:4px;}
 
   .table-responsive{width:100%;overflow-x:auto;}
   table{width:100%;border-collapse:collapse;font-size:14px;}
@@ -137,13 +139,12 @@
     <p>โรงพยาบาลพิจิตร</p>
     <form id="authForm">
       <div class="password-container">
-        <!-- กลับมาใช้ type="password" ซ่อนรหัสผ่านเป็นจุดไข่ปลา -->
         <input type="password" id="pinInput" placeholder="•••••" maxlength="5" autocomplete="current-password" required autofocus>
         <button type="button" class="toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()" title="แสดง/ซ่อนรหัสผ่าน">👁️</button>
       </div>
       <button type="submit" class="btn">เข้าสู่ระบบ</button>
     </form>
-    <div id="authErr" style="color:var(--error);font-size:13px;margin-top:10px;display:none;">รหัสผ่านไม่ถูกต้อง!</div>
+    <div id="authErr" style="color:var(--error);font-size:13.5px;margin-top:10px;display:none;">รหัสผ่านไม่ถูกต้อง!</div>
   </div>
 </div>
 
@@ -282,12 +283,34 @@ function renderTable(filterDate){
       <td>${dateFormatted}<br><small style="color:#666;">${statusBadge}</small></td>
       <td>
         <button class="btn btn-primary" onclick="printPatientDoc('${item.id}')">🖨️ พิมพ์เอกสาร PDF</button><br>
-        ${photoActionBtn}
+        ${photoActionBtn}<br>
+        <button class="btn btn-danger" onclick="deletePatientItem('${item.id}')">🗑️ ลบรายการนี้</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
+
+// ฟังก์ชันลบรายรายการ พร้อมระบบยืนยัน 2 ชั้น (ถามก่อน + ใส่รหัสผ่าน)
+window.deletePatientItem = function(id){
+  // ขั้นที่ 1: ถามยืนยันครั้งแรก
+  const firstConfirm = confirm("คุณต้องการลบรายการนี้ใช่หรือไม่?");
+  if(!firstConfirm) return;
+
+  // ขั้นที่ 2: ให้กรอกรหัสผ่านเพื่อยืนยัน
+  const passwordInput = prompt("กรุณาใส่รหัสผ่านเพื่อยืนยันการลบ (รหัส 10726):");
+  if(passwordInput === null) return; // กดยกเลิก
+
+  if(passwordInput.trim() === CORRECT_PIN){
+    let submissions = getAllSubmissions();
+    submissions = submissions.filter(s => s.id !== id);
+    saveAllSubmissions(submissions);
+    alert("ลบรายการเรียบร้อยแล้ว");
+    renderTable(document.getElementById('filterDateInput').value);
+  } else {
+    alert("รหัสผ่านไม่ถูกต้อง! ยกเลิกการลบข้อมูล");
+  }
+};
 
 window.printPatientDoc = function(id){
   const submissions = getAllSubmissions();
