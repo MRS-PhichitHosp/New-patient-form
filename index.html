@@ -293,8 +293,8 @@
       <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
     </div>
     <div>
-      <h1>ลงทะเบียนผู้ป่วยใหม่ล่วงหน้า - โรงพยาบาลพิจิตร[cite: 1]</h1>
-      <p>กรอกประวัติก่อนมาโรงพยาบาล เพื่อลดเวลารอที่ห้องบัตร[cite: 1]</p>
+      <h1>ลงทะเบียนผู้ป่วยใหม่ล่วงหน้า - โรงพยาบาลพิจิตร</h1>
+      <p>กรอกประวัติก่อนมาโรงพยาบาล เพื่อลดเวลารอที่ห้องบัตร</p>
     </div>
   </div>
 
@@ -305,8 +305,8 @@
 
       <div class="idcard" id="idcard">
         <div class="idcard-top">
-          <div class="tag">แบบตัวอย่างบัตรผู้ป่วย[cite: 1]</div>
-          <div class="hospital">โรงพยาบาลพิจิตร[cite: 1]</div>
+          <div class="tag">แบบตัวอย่างบัตรผู้ป่วย</div>
+          <div class="hospital">โรงพยาบาลพิจิตร</div>
         </div>
         <div class="idcard-body">
           <div class="idcard-photo" id="idcardPhotoBox">
@@ -320,7 +320,7 @@
           <div>แพ้ยา<b id="idcardAllergy">–</b></div>
           <div>โทรศัพท์<b id="idcardPhone">–</b></div>
         </div>
-        <div class="idcard-hn">เลขประจำตัวผู้ป่วย (HN) — เจ้าหน้าที่ห้องบัตรจะออกให้เมื่อมาถึงโรงพยาบาล[cite: 1]</div>
+        <div class="idcard-hn">เลขประจำตัวผู้ป่วย (HN) — เจ้าหน้าที่ห้องบัตรจะออกให้เมื่อมาถึงโรงพยาบาล</div>
       </div>
     </div>
 
@@ -449,7 +449,7 @@ function head(container, title, sub){
 }
 
 function renderPersonal(p){
-  head(p,'ข้อมูลส่วนตัว','กรอกตามบัตรประชาชนของท่าน — โรงพยาบาลพิจิตร[cite: 1]');
+  head(p,'ข้อมูลส่วนตัว','กรอกตามบัตรประชาชนของท่าน — โรงพยาบาลพิจิตร');
   const g=el(`<div class="grid"></div>`);
   
   const prefixContainer = document.createElement('div');
@@ -542,7 +542,7 @@ function renderContact(p){
 }
 
 function renderEmergency(p){
-  head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน[cite: 1]');
+  head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน');
   const g=el(`<div class="grid"></div>`);
   g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name">`,{required:true,name:'ec_name'})));
   
@@ -553,12 +553,12 @@ function renderEmergency(p){
     <label>ความสัมพันธ์<span class="req"> *</span></label>
     <select id="ecRelationSelect" data-b="ec_relation">
       <option value="">เลือกความสัมพันธ์</option>
-      <option value="บิดา">บิดา[cite: 1]</option>
-      <option value="มารดา">มารดา[cite: 1]</option>
-      <option value="คู่สมรส">คู่สมรส[cite: 1]</option>
-      <option value="ครู/อาจารย์">ครู/อาจารย์[cite: 1]</option>
-      <option value="ญาติ">ญาติ[cite: 1]</option>
-      <option value="อื่นๆ">อื่นๆ[cite: 1]</option>
+      <option value="บิดา">บิดา</option>
+      <option value="มารดา">มารดา</option>
+      <option value="คู่สมรส">คู่สมรส</option>
+      <option value="ครู/อาจารย์">ครู/อาจารย์</option>
+      <option value="ญาติ">ญาติ</option>
+      <option value="อื่นๆ">อื่นๆ</option>
     </select>
     <input type="text" id="ecRelationOtherInput" data-b="ec_relationOther" placeholder="ระบุความสัมพันธ์อื่นๆ" style="margin-top:6px; display:${data.ec_relation === 'อื่นๆ' ? 'block' : 'none'};" value="${data.ec_relationOther || ''}">
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
@@ -591,7 +591,7 @@ function renderEmergency(p){
 }
 
 function renderPhoto(p){
-  head(p,'แนบรูปถ่าย','รูปถ่ายหน้าตรงของผู้ป่วย ใช้สำหรับออกบัตรผู้ป่วยโรงพยาบาลพิจิตร[cite: 1]');
+  head(p,'แนบรูปถ่าย','รูปถ่ายหน้าตรงของผู้ป่วย ใช้สำหรับออกบัตรผู้ป่วยโรงพยาบาลพิจิตร');
   const wrap=el(`<div class="photo-upload">
       <div class="photo-box" id="photoBoxBig">
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -617,7 +617,7 @@ function renderPhoto(p){
 }
 
 function renderReview(p){
-  head(p,'ตรวจสอบข้อมูลและส่งออก','ตรวจสอบความถูกต้องก่อนส่งข้อมูลให้เจ้าหน้าที่ห้องบัตร โรงพยาบาลพิจิตร[cite: 1]');
+  head(p,'ตรวจสอบข้อมูลและส่งออก','ตรวจสอบความถูกต้องก่อนส่งข้อมูลให้เจ้าหน้าที่ห้องบัตร โรงพยาบาลพิจิตร');
 
   const sec=(title,i,rows)=>{
     const s=el(`<div class="review-section"></div>`);
@@ -664,11 +664,11 @@ function renderReview(p){
   const consent=el(`<div class="consent-box">
       <div class="checkrow" style="margin-bottom:10px;">
         <input type="checkbox" id="consentChk" ${data.consent?'checked':''}>
-        <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล[cite: 1]</label>
+        <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล</label>
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px;">
         ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย">`,{name:'signName'})}
-        ${field('ลงชื่อ (ผู้ให้ข้อมูล)[cite: 1]', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)">`,{name:'infoGiverName'})}
+        ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)">`,{name:'infoGiverName'})}
       </div>
     </div>`);
   p.appendChild(consent);
@@ -678,7 +678,7 @@ function renderReview(p){
   const actions=el(`<div class="footer-nav" style="flex-wrap:wrap;gap:10px;"></div>`);
   const back=el(`<button class="btn btn-ghost">‹ ย้อนกลับ</button>`);
   back.addEventListener('click',()=>{current--; renderAll();});
-  const printBtn=el(`<button class="btn btn-amber">🖨️ พิมพ์ / บันทึกเป็น PDF (ขนาด A5 แนวนอน)[cite: 1]</button>`);
+  const printBtn=el(`<button class="btn btn-amber">🖨️ พิมพ์ / บันทึกเป็น PDF (ขนาด A5 แนวนอน)</button>`);
   printBtn.addEventListener('click',()=>{
     if(!validateReview()) return;
     buildPrintArea();
@@ -754,8 +754,8 @@ function buildPrintArea(){
   pa.innerHTML=`
     <div class="p-head">
       <div>
-        <h1>เอกสารลงทะเบียนผู้ป่วยใหม่ (Pre-registration) — โรงพยาบาลพิจิตร[cite: 1]</h1>
-        <p>พิมพ์เมื่อ ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')} | เจ้าหน้าที่ห้องบัตรสั่งพิมพ์[cite: 1]</p>
+        <h1>เอกสารลงทะเบียนผู้ป่วยใหม่ (Pre-registration) — โรงพยาบาลพิจิตร</h1>
+        <p>พิมพ์เมื่อ ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')} | เจ้าหน้าที่ห้องบัตรสั่งพิมพ์</p>
       </div>
       ${data.photoDataUrl? `<img class="p-photo" src="${data.photoDataUrl}">` : ''}
     </div>
@@ -786,16 +786,16 @@ function buildPrintArea(){
 
     <div class="p-sign">
       <div>ลงชื่อผู้ป่วย: ${esc(data.signName)}</div>
-      <div>ลงชื่อผู้ให้ข้อมูล[cite: 1]: ${esc(data.infoGiverName) || '-'}</div>
+      <div>ลงชื่อผู้ให้ข้อมูล: ${esc(data.infoGiverName) || '-'}</div>
       <div>วันที่: ${now.toLocaleDateString('th-TH')}</div>
     </div>
 
     <div class="p-staff">
-      <h3>สำหรับเจ้าหน้าที่ห้องบัตร (Staff use only)[cite: 1]</h3>
+      <h3>สำหรับเจ้าหน้าที่ห้องบัตร (Staff use only)</h3>
       <div class="row">
-        <div>เลขประจำตัวผู้ป่วย (HN):[cite: 1]</div>
-        <div>วันที่รับเอกสาร:[cite: 1]</div>
-        <div>ผู้บันทึกข้อมูล:[cite: 1]</div>
+        <div>เลขประจำตัวผู้ป่วย (HN):</div>
+        <div>วันที่รับเอกสาร:</div>
+        <div>ผู้บันทึกข้อมูล:</div>
       </div>
     </div>
   `;
