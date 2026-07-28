@@ -44,12 +44,23 @@
   }
   .auth-box h2{color:var(--teal-900);margin-top:0;font-size:20px;}
   .auth-box p{color:var(--ink-soft);font-size:13.5px;margin-bottom:20px;}
+  
+  .password-container{
+    position:relative;width:100%;margin-bottom:14px;
+  }
   .auth-box input{
-    width:100%;padding:12px;font-size:20px;text-align:center;
-    border:2px solid var(--line);border-radius:10px;margin-bottom:14px;
+    width:100%;padding:12px 45px 12px 12px;font-size:20px;text-align:center;
+    border:2px solid var(--line);border-radius:10px;
     font-family:'Prompt',sans-serif;letter-spacing:6px; background:#FAFAFA;
   }
   .auth-box input:focus{border-color:var(--teal-600);outline:none;background:#fff;}
+  
+  .toggle-password{
+    position:absolute;right:12px;top:50%;transform:translateY(-50%);
+    background:none;border:none;cursor:pointer;font-size:18px;color:var(--ink-soft);
+    padding:0;display:flex;align-items:center;justify-content:center;
+  }
+
   .btn{
     font-family:'Sarabun',sans-serif;font-weight:600;font-size:14px;
     border-radius:9px;padding:10px 18px;border:none;cursor:pointer;width:100%;
@@ -125,8 +136,11 @@
     <h2>🔒 เข้าสู่ระบบเจ้าหน้าที่</h2>
     <p>โรงพยาบาลพิจิตร</p>
     <form id="authForm">
-      <!-- เปลี่ยนเป็น type="text" ให้เห็นตัวอักษรชัดเจนตอนพิมพ์ -->
-      <input type="text" id="pinInput" placeholder="10726" maxlength="5" autocomplete="off" required autofocus>
+      <div class="password-container">
+        <!-- กลับมาใช้ type="password" ซ่อนรหัสผ่านเป็นจุดไข่ปลา -->
+        <input type="password" id="pinInput" placeholder="•••••" maxlength="5" autocomplete="current-password" required autofocus>
+        <button type="button" class="toggle-password" id="toggleBtn" onclick="togglePasswordVisibility()" title="แสดง/ซ่อนรหัสผ่าน">👁️</button>
+      </div>
       <button type="submit" class="btn">เข้าสู่ระบบ</button>
     </form>
     <div id="authErr" style="color:var(--error);font-size:13px;margin-top:10px;display:none;">รหัสผ่านไม่ถูกต้อง!</div>
@@ -173,6 +187,18 @@
 
 <script>
 const CORRECT_PIN = "10726";
+
+function togglePasswordVisibility() {
+  const pinInput = document.getElementById('pinInput');
+  const toggleBtn = document.getElementById('toggleBtn');
+  if (pinInput.type === 'password') {
+    pinInput.type = 'text';
+    toggleBtn.textContent = '🙈';
+  } else {
+    pinInput.type = 'password';
+    toggleBtn.textContent = '👁️';
+  }
+}
 
 document.getElementById('authForm').addEventListener('submit', (e) => {
   e.preventDefault();
