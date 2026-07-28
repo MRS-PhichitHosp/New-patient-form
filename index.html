@@ -501,7 +501,7 @@ function renderPersonal(p){
   g.appendChild(el(field('ชื่อ-นามสกุล บิดา', `<input type="text" data-b="fatherName" placeholder="ระบุชื่อ-นามสกุลบิดา" ${isSubmitted?'disabled':''}>`,{name:'fatherName'})));
   g.appendChild(el(field('ชื่อ-นามสกุล มารดา', `<input type="text" data-b="motherName" placeholder="ระบุชื่อ-นามสกุลมารดา" ${isSubmitted?'disabled':''}>`,{name:'motherName'})));
 
-  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled':''}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
+  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled'}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
       <label><input type="radio" name="gender" value="ชาย" data-b="gender" ${isSubmitted?'disabled':''}> ชาย</label>
