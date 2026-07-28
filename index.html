@@ -43,9 +43,10 @@
   .topbar{
     display:flex;
     align-items:center;
-    gap:14px;
+    justify-content:space-between;
     margin-bottom:26px;
   }
+  .topbar-left{display:flex;align-items:center;gap:14px;cursor:pointer;}
   .topbar .mark{
     width:44px;height:44px;border-radius:11px;
     background:linear-gradient(155deg,var(--teal-900),var(--teal-600));
@@ -56,6 +57,11 @@
   .topbar .mark svg{width:24px;height:24px;}
   .topbar h1{font-size:19px;font-weight:600;margin:0;color:var(--teal-900);}
   .topbar p{margin:2px 0 0;font-size:13px;color:var(--ink-soft);}
+  .staff-btn{
+    background:var(--teal-100);color:var(--teal-900);border:1px solid var(--teal-600);
+    padding:6px 12px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  }
+  .staff-btn:hover{background:var(--teal-600);color:#fff;}
 
   .layout{
     display:grid;
@@ -253,6 +259,29 @@
     margin-top:8px;font-size:12.5px;color:var(--error);font-weight:600;background:#FDF3F2;padding:8px 12px;border-radius:8px;border:1px dashed #E5B3AE;
   }
 
+  /* Staff Modal */
+  .modal-overlay{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);
+    display:flex;align-items:center;justify-content:center;z-index:9999;
+  }
+  .modal-content{
+    background:#fff;border-radius:12px;width:90%;max-width:900px;max-height:85vh;
+    display:flex;flex-direction:column;box-shadow:0 4px 20px rgba(0,0,0,0.2);overflow:hidden;
+  }
+  .modal-header{
+    background:var(--teal-900);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;
+  }
+  .modal-header h3{margin:0;font-size:16px;}
+  .modal-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+  .modal-body{padding:20px;overflow-y:auto;flex:1;}
+  .table-responsive{width:100%;overflow-x:auto;}
+  table.staff-table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:10px;}
+  table.staff-table th, table.staff-table td{border:1px solid var(--line);padding:8px 10px;text-align:left;}
+  table.staff-table th{background:var(--teal-100);color:var(--teal-900);}
+  .badge-status{padding:3px 8px;border-radius:4px;font-size:11.5px;font-weight:600;}
+  .badge-printed{background:#E8F5E9;color:#2E7D32;}
+  .badge-unprinted{background:#FFF3E0;color:#E65100;}
+
   /* ===== Print stylesheet (A5 Landscape - Exactly 1 page) ===== */
   #printArea{display:none;}
   @media print{
@@ -295,12 +324,17 @@
 <div class="app" id="appRoot">
 
   <div class="topbar">
-    <div class="mark">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <div class="topbar-left" id="openStaffModalBtn">
+      <div class="mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>ลงทะเบียนผู้ป่วยใหม่ล่วงหน้า - โรงพยาบาลพิจิตร</h1>
+        <p>กรอกประวัติก่อนมาโรงพยาบาล เพื่อลดเวลารอที่ห้องบัตร</p>
+      </div>
     </div>
     <div>
-      <h1>ลงทะเบียนผู้ป่วยใหม่ล่วงหน้า - โรงพยาบาลพิจิตร</h1>
-      <p>กรอกประวัติก่อนมาโรงพยาบาล เพื่อลดเวลารอที่ห้องบัตร</p>
+      <button class="staff-btn" type="button" id="btnStaffPortal">🔒 สำหรับเจ้าหน้าที่ รพ.</button>
     </div>
   </div>
 
@@ -338,9 +372,13 @@
 <!-- PRINT-ONLY DOCUMENT -->
 <div id="printArea"></div>
 
+<!-- STAFF MODAL CONTAINER -->
+<div id="staffModalContainer"></div>
+
 <script>
 /* ---------------- state ---------------- */
 const data = {
+  id:'', createdAt:'', printed:false, printedAt:'',
   prefix:'', prefixOther:'', firstname:'', lastname:'', nid:'', dob:'', gender:'', marital:'', ethnicity:'ไทย', nationality:'ไทย', religion:'', religionOther:'', blood:'', allergyDrug:'',
   addr_no:'', addr_moo:'', addr_tambon:'', addr_amphoe:'', addr_province:'พิจิตร', addr_zip:'', phone:'',
   ec_name:'', ec_relation:'', ec_relationOther:'', ec_addr:'', ec_phone:'',
@@ -356,6 +394,7 @@ const steps = [
   {id:'review', label:'ตรวจสอบ & ส่งออก'},
 ];
 let current = 0;
+let isSubmitted = false;
 
 /* ---------------- helpers ---------------- */
 function el(html){const t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
@@ -379,21 +418,52 @@ function thaiDate(dob){
   return d.getDate()+' '+months[d.getMonth()]+' '+(d.getFullYear()+543);
 }
 
-/* ---------------- localStorage persistence ---------------- */
-const STORAGE_KEY = 'phichit_hosp_patient_data_v2';
-function saveToStorage(){
-  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }catch(e){}
+/* ---------------- database / submission storage ---------------- */
+const STORAGE_CURRENT = 'phichit_current_draft_v3';
+const STORAGE_SUBMISSIONS = 'phichit_all_submissions_v3';
+
+function saveDraft(){
+  if(isSubmitted) return;
+  try{ localStorage.setItem(STORAGE_CURRENT, JSON.stringify(data)); }catch(e){}
 }
-function loadFromStorage(){
+function loadDraft(){
   try{
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const saved = localStorage.getItem(STORAGE_CURRENT);
     if(saved){
       const parsed = JSON.parse(saved);
       Object.keys(parsed).forEach(k => { data[k] = parsed[k]; });
     }
   }catch(e){}
 }
-loadFromStorage();
+loadDraft();
+
+function getAllSubmissions(){
+  try{
+    const all = localStorage.getItem(STORAGE_SUBMISSIONS);
+    return all ? JSON.parse(all) : [];
+  }catch(e){ return []; }
+}
+function saveAllSubmissions(list){
+  try{ localStorage.setItem(STORAGE_SUBMISSIONS, JSON.stringify(list)); }catch(e){}
+}
+
+function commitSubmission(){
+  const list = getAllSubmissions();
+  if(!data.id){
+    data.id = 'P-' + Date.now();
+    data.createdAt = new Date().toISOString();
+  }
+  // check if exists update or push
+  const idx = list.findIndex(item => item.id === data.id);
+  if(idx >= 0){
+    list[idx] = JSON.parse(JSON.stringify(data));
+  } else {
+    list.unshift(JSON.parse(JSON.stringify(data)));
+  }
+  saveAllSubmissions(list);
+  isSubmitted = true;
+  try{ localStorage.removeItem(STORAGE_CURRENT); }catch(e){}
+}
 
 /* ---------------- sidebar steps ---------------- */
 function renderSteps(){
@@ -404,7 +474,11 @@ function renderSteps(){
       <div class="step-num">${i<current?'✓':i+1}</div>
       <div class="step-label">${s.label}</div>
     </div>`);
-    item.addEventListener('click',()=>{ if(i<current){ current=i; renderAll(); } else if(i===current+1){ if(validateStep(current)){current=i; renderAll();} } });
+    item.addEventListener('click',()=>{ 
+      if(isSubmitted) { alert('ข้อมูลนี้ถูกบันทึกส่งออกแล้ว ไม่สามารถแก้ไขได้'); return; }
+      if(i<current){ current=i; renderAll(); } 
+      else if(i===current+1){ if(validateStep(current)){current=i; renderAll();} } 
+    });
     box.appendChild(item);
   });
 }
@@ -422,7 +496,7 @@ function updateCard(){
   const photoBox=document.getElementById('idcardPhotoBox');
   if(data.photoDataUrl){ photoBox.innerHTML = `<img src="${data.photoDataUrl}">`; }
   else { photoBox.innerHTML = `<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>`; }
-  saveToStorage();
+  saveDraft();
 }
 
 /* ---------------- field builder ---------------- */
@@ -437,7 +511,11 @@ function field(labelTxt, inputHtml, opts={}){
   </div>`;
 }
 function bind(name, transform){
-  return (e)=>{ data[name] = transform? transform(e.target.value): e.target.value; updateCard(); };
+  return (e)=>{ 
+    if(isSubmitted) return;
+    data[name] = transform? transform(e.target.value): e.target.value; 
+    updateCard(); 
+  };
 }
 
 /* ---------------- step renderers ---------------- */
@@ -459,21 +537,17 @@ function nav(container){
   back.addEventListener('click',()=>{ if(current>0){current--; renderAll();} });
   wrap.appendChild(back);
 
-  const rightBtns = el(`<div style="display:flex; gap:10px; flex-wrap:wrap;"></div>`);
-  
-  const saveBtn = el(`<button class="btn btn-primary" type="button">💾 บันทึกข้อมูล</button>`);
-  saveBtn.addEventListener('click', ()=>{
-    saveToStorage();
-    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-  });
-  rightBtns.appendChild(saveBtn);
-
   if(current < steps.length-1){
     const next=el(`<button class="btn btn-primary" type="button">ถัดไป ›</button>`);
-    next.addEventListener('click',()=>{ if(validateStep(current)){ current++; renderAll(); } });
-    rightBtns.appendChild(next);
+    next.addEventListener('click',()=>{ 
+      if(isSubmitted) { alert('ข้อมูลถูกบันทึกไปแล้ว'); current++; renderAll(); return; }
+      if(validateStep(current)){ current++; renderAll(); } 
+    });
+    wrap.appendChild(next);
+  } else {
+    // หน้าสุดท้าย ไม่ต้องมีปุ่มถัดไป
+    wrap.appendChild(el(`<div></div>`));
   }
-  wrap.appendChild(rightBtns);
   container.appendChild(wrap);
 }
 
@@ -491,41 +565,41 @@ function renderPersonal(p){
   prefixContainer.dataset.field = 'prefix';
   prefixContainer.innerHTML = `
     <label>คำนำหน้า<span class="req"> *</span></label>
-    <select id="prefixSelect" data-b="prefix">
+    <select id="prefixSelect" data-b="prefix" ${isSubmitted?'disabled':''}>
       <option value="">เลือกคำนำหน้า</option>
       <option value="นาย">นาย</option>
       <option value="นาง">นาง</option>
       <option value="น.ส.">น.ส.</option>
-      <option value="เด็กชาย">เด็กชาย</option>
-      <option value="เด็กหญิง">เด็กหญิง</option>
+      <option value="ด.ช.">ด.ช.</option>
+      <option value="ด.ญ.">ด.ญ.</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="prefixOtherInput" data-b="prefixOther" placeholder="ระบุคำนำหน้าอื่นๆ" style="margin-top:6px; display:${data.prefix === 'อื่นๆ' ? 'block' : 'none'};" value="${data.prefixOther || ''}">
+    <input type="text" id="prefixOtherInput" data-b="prefixOther" placeholder="ระบุคำนำหน้าอื่นๆ" style="margin-top:6px; display:${data.prefix === 'อื่นๆ' ? 'block' : 'none'};" value="${data.prefixOther || ''}" ${isSubmitted?'disabled':''}>
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(prefixContainer);
 
-  g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง">`,{required:true,name:'firstname'})));
-  g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname">`,{required:true,name:'lastname'})));
-  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric">`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
+  g.appendChild(el(field('ชื่อจริง', `<input type="text" data-b="firstname" placeholder="ระบุเฉพาะชื่อจริง" ${isSubmitted?'disabled':''}>`,{required:true,name:'firstname'})));
+  g.appendChild(el(field('นามสกุล', `<input type="text" data-b="lastname" ${isSubmitted?'disabled':''}>`,{required:true,name:'lastname'})));
+  g.appendChild(el(field('เลขประจำตัวประชาชน 13 หลัก', `<input type="text" data-b="nid" maxlength="13" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'nid',hint:'ใช้ตรวจสอบประวัติ ไม่ต้องใส่ขีด'})));
   
-  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob"><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
+  g.appendChild(el(field('วัน เดือน ปี เกิด', `<input type="date" data-b="dob" ${isSubmitted?'disabled':''}><div class="age-badge" id="ageBadge" style="display:none;"></div>`,{required:true,name:'dob',hint:'ระบบจะคำนวณอายุให้อัตโนมัติ'})));
   
   g.appendChild(el(field('เพศ', `<div class="radiorow">
-      <label><input type="radio" name="gender" value="ชาย" data-b="gender"> ชาย</label>
-      <label><input type="radio" name="gender" value="หญิง" data-b="gender"> หญิง</label>
-      <label><input type="radio" name="gender" value="อื่นๆ" data-b="gender"> อื่นๆ</label>
+      <label><input type="radio" name="gender" value="ชาย" data-b="gender" ${isSubmitted?'disabled':''}> ชาย</label>
+      <label><input type="radio" name="gender" value="หญิง" data-b="gender" ${isSubmitted?'disabled':''}> หญิง</label>
+      <label><input type="radio" name="gender" value="อื่นๆ" data-b="gender" ${isSubmitted?'disabled':''}> อื่นๆ</label>
     </div>`,{required:true,name:'gender'})));
-  g.appendChild(el(field('สถานภาพสมรส', `<select data-b="marital"><option value="">เลือก</option><option>โสด</option><option>สมรส</option><option>หย่าร้าง</option><option>หม้าย</option></select>`,{name:'marital'})));
-  g.appendChild(el(field('เชื้อชาติ', `<input type="text" data-b="ethnicity" value="ไทย">`,{name:'ethnicity'})));
-  g.appendChild(el(field('สัญชาติ', `<input type="text" data-b="nationality" value="ไทย">`,{name:'nationality'})));
+  g.appendChild(el(field('สถานภาพสมรส', `<select data-b="marital" ${isSubmitted?'disabled':''}><option value="">เลือก</option><option>โสด</option><option>สมรส</option><option>หย่าร้าง</option><option>หม้าย</option></select>`,{name:'marital'})));
+  g.appendChild(el(field('เชื้อชาติ', `<input type="text" data-b="ethnicity" value="ไทย" ${isSubmitted?'disabled':''}>`,{name:'ethnicity'})));
+  g.appendChild(el(field('สัญชาติ', `<input type="text" data-b="nationality" value="ไทย" ${isSubmitted?'disabled':''}>`,{name:'nationality'})));
   
   const religionContainer = document.createElement('div');
   religionContainer.className = 'field';
   religionContainer.dataset.field = 'religion';
   religionContainer.innerHTML = `
     <label>ศาสนา</label>
-    <select id="religionSelect" data-b="religion">
+    <select id="religionSelect" data-b="religion" ${isSubmitted?'disabled':''}>
       <option value="">เลือกศาสนา</option>
       <option value="พุทธ">พุทธ</option>
       <option value="คริสต์">คริสต์</option>
@@ -534,13 +608,13 @@ function renderPersonal(p){
       <option value="ซิกข์">ซิกข์</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="religionOtherInput" data-b="religionOther" placeholder="ระบุศาสนาอื่นๆ" style="margin-top:6px; display:${data.religion === 'อื่นๆ' ? 'block' : 'none'};" value="${data.religionOther || ''}">
+    <input type="text" id="religionOtherInput" data-b="religionOther" placeholder="ระบุศาสนาอื่นๆ" style="margin-top:6px; display:${data.religion === 'อื่นๆ' ? 'block' : 'none'};" value="${data.religionOther || ''}" ${isSubmitted?'disabled':''}>
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(religionContainer);
 
-  g.appendChild(el(field('หมู่เลือด', `<select data-b="blood"><option value="">ไม่ทราบ</option><option>A</option><option>B</option><option>AB</option><option>O</option></select>`,{name:'blood'})));
-  g.appendChild(el(field('ประวัติแพ้ยา', `<input type="text" data-b="allergyDrug" placeholder="ระบุชื่อยา หรือ 'ไม่มี'">`,{name:'allergyDrug',full:true,required:true})));
+  g.appendChild(el(field('หมู่เลือด', `<select data-b="blood" ${isSubmitted?'disabled':''}><option value="">ไม่ทราบ</option><option>A</option><option>B</option><option>AB</option><option>O</option></select>`,{name:'blood'})));
+  g.appendChild(el(field('ประวัติแพ้ยา', `<input type="text" data-b="allergyDrug" placeholder="ระบุชื่อยา หรือ 'ไม่มี'" ${isSubmitted?'disabled':''}>`,{name:'allergyDrug',full:true,required:true})));
   
   p.appendChild(g);
   wireInputs(p);
@@ -549,6 +623,7 @@ function renderPersonal(p){
   const prefixOtherInput = p.querySelector('#prefixOtherInput');
   if(data.prefix) prefixSelect.value = data.prefix;
   prefixSelect.addEventListener('change', (e) => {
+    if(isSubmitted) return;
     data.prefix = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       prefixOtherInput.style.display = 'block';
@@ -560,6 +635,7 @@ function renderPersonal(p){
     updateCard();
   });
   prefixOtherInput.addEventListener('input', (e) => {
+    if(isSubmitted) return;
     data.prefixOther = e.target.value;
     updateCard();
   });
@@ -568,6 +644,7 @@ function renderPersonal(p){
   const religionOtherInput = p.querySelector('#religionOtherInput');
   if(data.religion) religionSelect.value = data.religion;
   religionSelect.addEventListener('change', (e) => {
+    if(isSubmitted) return;
     data.religion = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       religionOtherInput.style.display = 'block';
@@ -579,6 +656,7 @@ function renderPersonal(p){
     updateCard();
   });
   religionOtherInput.addEventListener('input', (e) => {
+    if(isSubmitted) return;
     data.religionOther = e.target.value;
     updateCard();
   });
@@ -602,13 +680,13 @@ function renderPersonal(p){
 function renderContact(p){
   head(p,'ข้อมูลการติดต่อ','ที่อยู่ปัจจุบันและเบอร์โทรที่ติดต่อได้');
   const g=el(`<div class="grid"></div>`);
-  g.appendChild(el(field('บ้านเลขที่', `<input type="text" data-b="addr_no">`,{required:true,name:'addr_no'})));
-  g.appendChild(el(field('หมู่ที่', `<input type="text" data-b="addr_moo">`,{name:'addr_moo'})));
-  g.appendChild(el(field('ตำบล / แขวง', `<input type="text" data-b="addr_tambon">`,{required:true,name:'addr_tambon'})));
-  g.appendChild(el(field('อำเภอ / เขต', `<input type="text" data-b="addr_amphoe">`,{required:true,name:'addr_amphoe'})));
-  g.appendChild(el(field('จังหวัด', `<input type="text" data-b="addr_province" value="พิจิตร">`,{required:true,name:'addr_province'})));
-  g.appendChild(el(field('รหัสไปรษณีย์', `<input type="text" data-b="addr_zip" maxlength="5" inputmode="numeric">`,{required:true,name:'addr_zip'})));
-  g.appendChild(el(field('เบอร์โทรศัพท์มือถือที่ติดต่อได้', `<input type="tel" data-b="phone" inputmode="tel">`,{required:true,name:'phone',full:true})));
+  g.appendChild(el(field('บ้านเลขที่', `<input type="text" data-b="addr_no" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_no'})));
+  g.appendChild(el(field('หมู่ที่', `<input type="text" data-b="addr_moo" ${isSubmitted?'disabled':''}>`,{name:'addr_moo'})));
+  g.appendChild(el(field('ตำบล / แขวง', `<input type="text" data-b="addr_tambon" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_tambon'})));
+  g.appendChild(el(field('อำเภอ / เขต', `<input type="text" data-b="addr_amphoe" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_amphoe'})));
+  g.appendChild(el(field('จังหวัด', `<input type="text" data-b="addr_province" value="พิจิตร" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_province'})));
+  g.appendChild(el(field('รหัสไปรษณีย์', `<input type="text" data-b="addr_zip" maxlength="5" inputmode="numeric" ${isSubmitted?'disabled':''}>`,{required:true,name:'addr_zip'})));
+  g.appendChild(el(field('เบอร์โทรศัพท์มือถือที่ติดต่อได้', `<input type="tel" data-b="phone" inputmode="tel" ${isSubmitted?'disabled':''}>`,{required:true,name:'phone',full:true})));
   p.appendChild(g);
   wireInputs(p);
   nav(p);
@@ -617,14 +695,14 @@ function renderContact(p){
 function renderEmergency(p){
   head(p,'ผู้ติดต่อฉุกเฉิน','บุคคลที่โรงพยาบาลพิจิตรสามารถติดต่อได้ในกรณีฉุกเฉิน');
   const g=el(`<div class="grid"></div>`);
-  g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name">`,{required:true,name:'ec_name'})));
+  g.appendChild(el(field('ชื่อ-นามสกุล', `<input type="text" data-b="ec_name" ${isSubmitted?'disabled':''}>`,{required:true,name:'ec_name'})));
   
   const relContainer = document.createElement('div');
   relContainer.className = 'field';
   relContainer.dataset.field = 'ec_relation';
   relContainer.innerHTML = `
     <label>ความสัมพันธ์<span class="req"> *</span></label>
-    <select id="ecRelationSelect" data-b="ec_relation">
+    <select id="ecRelationSelect" data-b="ec_relation" ${isSubmitted?'disabled':''}>
       <option value="">เลือกความสัมพันธ์</option>
       <option value="บิดา">บิดา</option>
       <option value="มารดา">มารดา</option>
@@ -633,13 +711,13 @@ function renderEmergency(p){
       <option value="ญาติ">ญาติ</option>
       <option value="อื่นๆ">อื่นๆ</option>
     </select>
-    <input type="text" id="ecRelationOtherInput" data-b="ec_relationOther" placeholder="ระบุความสัมพันธ์อื่นๆ" style="margin-top:6px; display:${data.ec_relation === 'อื่นๆ' ? 'block' : 'none'};" value="${data.ec_relationOther || ''}">
+    <input type="text" id="ecRelationOtherInput" data-b="ec_relationOther" placeholder="ระบุความสัมพันธ์อื่นๆ" style="margin-top:6px; display:${data.ec_relation === 'อื่นๆ' ? 'block' : 'none'};" value="${data.ec_relationOther || ''}" ${isSubmitted?'disabled':''}>
     <div class="err-msg">กรุณากรอกข้อมูลนี้</div>
   `;
   g.appendChild(relContainer);
 
-  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="ec_addr" placeholder="ที่อยู่ (ถ้ามี)">`,{name:'ec_addr',full:true})));
-  g.appendChild(el(field('เบอร์โทรศัพท์', `<input type="tel" data-b="ec_phone">`,{required:true,name:'ec_phone',full:true})));
+  g.appendChild(el(field('ที่อยู่ผู้ติดต่อ', `<input type="text" data-b="ec_addr" placeholder="ที่อยู่ (ถ้ามี)" ${isSubmitted?'disabled':''}>`,{name:'ec_addr',full:true})));
+  g.appendChild(el(field('เบอร์โทรศัพท์', `<input type="tel" data-b="ec_phone" ${isSubmitted?'disabled':''}>`,{required:true,name:'ec_phone',full:true})));
   
   p.appendChild(g);
   wireInputs(p);
@@ -648,6 +726,7 @@ function renderEmergency(p){
   const ecRelationOtherInput = p.querySelector('#ecRelationOtherInput');
   if(data.ec_relation) ecRelationSelect.value = data.ec_relation;
   ecRelationSelect.addEventListener('change', (e) => {
+    if(isSubmitted) return;
     data.ec_relation = e.target.value;
     if(e.target.value === 'อื่นๆ'){
       ecRelationOtherInput.style.display = 'block';
@@ -658,6 +737,7 @@ function renderEmergency(p){
     }
   });
   ecRelationOtherInput.addEventListener('input', (e) => {
+    if(isSubmitted) return;
     data.ec_relationOther = e.target.value;
   });
 
@@ -671,8 +751,8 @@ function renderPhoto(p){
         <svg viewBox="0 0 24 24" fill="none"><path d="M4 7h3l2-2h6l2 2h3v13H4V7z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg>
       </div>
       <div>
-        <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none">
-        <button class="btn btn-primary" type="button" id="photoBtn">ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
+        <input type="file" id="photoInput" accept="image/*" capture="user" style="display:none" ${isSubmitted?'disabled':''}>
+        <button class="btn btn-primary" type="button" id="photoBtn" ${isSubmitted?'disabled':''}>ถ่ายรูปตัวเอง / อัปโหลดรูป</button>
         <p class="hint" style="margin-top:10px;max-width:320px;">รองรับไฟล์ JPG หรือ PNG ขนาดไม่เกิน 5MB บนมือถือจะเปิดกล้องหน้าให้ถ่ายภาพตัวเองได้ทันที หรือเลือกรูปจากคลังภาพก็ได้</p>
       </div>
     </div>`);
@@ -680,6 +760,7 @@ function renderPhoto(p){
   if(data.photoDataUrl) wrap.querySelector('#photoBoxBig').innerHTML=`<img src="${data.photoDataUrl}">`;
   wrap.querySelector('#photoBtn').addEventListener('click',()=>wrap.querySelector('#photoInput').click());
   wrap.querySelector('#photoInput').addEventListener('change',(e)=>{
+    if(isSubmitted) return;
     const file=e.target.files[0];
     if(!file) return;
     if(file.size > 5*1024*1024){ alert('ไฟล์มีขนาดใหญ่เกิน 5MB กรุณาเลือกไฟล์ใหม่'); return; }
@@ -695,7 +776,7 @@ function renderReview(p){
 
   const sec=(title,i,rows)=>{
     const s=el(`<div class="review-section"></div>`);
-    s.appendChild(el(`<h3>${title} <button type="button" data-goto="${i}">แก้ไข</button></h3>`));
+    s.appendChild(el(`<h3>${title} ${!isSubmitted? `<button type="button" data-goto="${i}">แก้ไข</button>`:''}</h3>`));
     const g=el(`<div class="review-grid"></div>`);
     rows.forEach(r=>{ if(r) g.appendChild(el(`<div class="k">${r[0]}</div><div class="v ${r[2]?'full':''}">${r[1]||'—'}</div>`)); });
     s.appendChild(g);
@@ -729,65 +810,67 @@ function renderReview(p){
   ]));
 
   const photoSec=el(`<div class="review-section"></div>`);
-  photoSec.appendChild(el(`<h3>รูปถ่าย <button type="button" data-goto="3">แก้ไข</button></h3>`));
+  photoSec.appendChild(el(`<h3>รูปถ่าย ${!isSubmitted? `<button type="button" data-goto="3">แก้ไข</button>`:''}</h3>`));
   photoSec.appendChild(data.photoDataUrl? el(`<img src="${data.photoDataUrl}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);">`) : el(`<p class="hint">ยังไม่ได้แนบรูปถ่าย</p>`));
   p.appendChild(photoSec);
 
-  p.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>{ current=parseInt(btn.dataset.goto); renderAll(); }));
+  p.querySelectorAll('[data-goto]').forEach(btn=>btn.addEventListener('click',()=>{ 
+    if(isSubmitted) return;
+    current=parseInt(btn.dataset.goto); 
+    renderAll(); 
+  }));
 
   const consent=el(`<div class="consent-box">
       <div class="checkrow">
-        <input type="checkbox" id="consentChk" ${data.consent?'checked':''}>
+        <input type="checkbox" id="consentChk" ${data.consent?'checked':''} ${isSubmitted?'disabled':''}>
         <label for="consentChk">ข้าพเจ้าขอรับรองว่าข้อมูลข้างต้นเป็นความจริงทุกประการ และยินยอมให้โรงพยาบาลพิจิตรใช้ข้อมูลนี้เพื่อการลงทะเบียนและการรักษาพยาบาล</label>
       </div>
       <div class="notice-edit">
-        (ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียนเบอร์ 18 อาคารอำนวยการ โรงพยาบาลพิจิตร)
+        (เมื่อกดบันทึกแล้วไม่สามารถแก้ไขข้อมูลได้ ถ้าต้องการแก้ไขข้อมูลให้ติดต่อห้องเวชระเบียนเบอร์ 18 อาคารอำนวยการ โรงพยาบาลพิจิตร)
       </div>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
-        ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย">`,{name:'signName'})}
-        ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)">`,{name:'infoGiverName'})}
+        ${field('ลงชื่อ (ผู้ป่วย/ผู้รับบริการ)', `<input type="text" data-b="signName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ป่วย" ${isSubmitted?'disabled':''}>`,{name:'signName'})}
+        ${field('ลงชื่อ (ผู้ให้ข้อมูล)', `<input type="text" data-b="infoGiverName" placeholder="พิมพ์ชื่อ-นามสกุลผู้ให้ข้อมูล (ถ้ามี)" ${isSubmitted?'disabled':''}>`,{name:'infoGiverName'})}
       </div>
     </div>`);
   p.appendChild(consent);
-  consent.querySelector('#consentChk').addEventListener('change',e=>{ data.consent=e.target.checked; saveToStorage(); });
+  consent.querySelector('#consentChk').addEventListener('change',e=>{ 
+    if(isSubmitted) return;
+    data.consent=e.target.checked; 
+    saveDraft(); 
+  });
   wireInputs(consent);
 
   const actions=el(`<div class="footer-nav" style="flex-wrap:wrap;gap:10px;"></div>`);
   const back=el(`<button class="btn btn-ghost" type="button">‹ ย้อนกลับ</button>`);
-  back.addEventListener('click',()=>{current--; renderAll();});
+  back.addEventListener('click',()=>{if(!isSubmitted){current--; renderAll();}});
   
   const rightBtns = el(`<div style="display:flex; gap:10px; flex-wrap:wrap;"></div>`);
   
-  const saveBtn = el(`<button class="btn btn-primary" type="button">💾 บันทึกข้อมูล</button>`);
-  saveBtn.addEventListener('click', ()=>{
-    saveToStorage();
-    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-  });
-  rightBtns.appendChild(saveBtn);
-
-  const printBtn=el(`<button class="btn btn-success" type="button">🖨️ บันทึกและพิมพ์สำหรับเจ้าหน้าที่ รพ.</button>`);
-  printBtn.addEventListener('click',()=>{
-    if(!validateReview()) return;
-    buildPrintArea();
-    setTimeout(()=>window.print(),80);
-  });
-  rightBtns.appendChild(printBtn);
+  if(!isSubmitted){
+    const saveBtn = el(`<button class="btn btn-amber" type="button">💾 บันทึกข้อมูล</button>`);
+    saveBtn.addEventListener('click', ()=>{
+      if(!document.getElementById('consentChk').checked){
+        alert('กรุณากดยินยอมรับรองข้อมูลก่อนบันทึก');
+        return;
+      }
+      if(!data.signName.trim()){
+        alert('กรุณาพิมพ์ชื่อ-นามสกุลผู้ป่วยเพื่อลงชื่อยืนยันก่อนบันทึก');
+        return;
+      }
+      commitSubmission();
+      alert('บันทึกข้อมูลสำเร็จ! ข้อมูลถูกส่งเข้าฐานข้อมูลของห้องเวชระเบียนเรียบร้อยแล้ว (ไม่สามารถแก้ไขข้อมูลได้อีก)');
+      renderAll();
+    });
+    rightBtns.appendChild(saveBtn);
+  } else {
+    const lockedMsg = el(`<span style="color:#2E7D32; font-weight:600; display:flex; align-items:center;">✔️ บันทึกข้อมูลเรียบร้อยแล้ว</span>`);
+    rightBtns.appendChild(lockedMsg);
+  }
 
   actions.appendChild(back);
   actions.appendChild(rightBtns);
   p.appendChild(actions);
-}
-
-function validateReview(){
-  if(!document.getElementById('consentChk').checked){
-    alert('กรุณายืนยันความถูกต้องของข้อมูล (ทำเครื่องหมายในช่องยินยอม) ก่อนส่งออก');
-    return false;
-  }
-  if(!data.signName){
-    alert('กรุณาพิมพ์ชื่อ-นามสกุลผู้ป่วยเพื่อยืนยันก่อนส่งออก');
-    return false;
-  }
-  return true;
 }
 
 /* ---------------- wiring + validation ---------------- */
@@ -796,7 +879,7 @@ function wireInputs(container){
     const name=inp.dataset.b;
     if(['prefix','prefixOther','religion','religionOther','ec_relation','ec_relationOther'].includes(name)) return;
     if(inp.type==='radio'){ if(data[name]===inp.value) inp.checked=true; inp.addEventListener('change',bind(name)); }
-    else if(inp.type==='checkbox'){ inp.checked=!!data[name]; inp.addEventListener('change',(e)=>{data[name]=e.target.checked; updateCard();}); }
+    else if(inp.type==='checkbox'){ inp.checked=!!data[name]; inp.addEventListener('change',(e)=>{if(!isSubmitted){data[name]=e.target.checked; updateCard();}}); }
     else { inp.value = data[name]||''; inp.addEventListener('input', bind(name)); }
   });
 }
@@ -809,6 +892,7 @@ const requiredByStep = {
   4:[]
 };
 function validateStep(i){
+  if(isSubmitted) return true;
   const need = requiredByStep[i]||[];
   let ok=true;
   need.forEach(name=>{
@@ -836,50 +920,155 @@ function validateStep(i){
   return ok;
 }
 
-/* ---------------- print document (A5 Landscape) ---------------- */
-function buildPrintArea(){
+/* ---------------- staff portal modal ---------------- */
+function openStaffModal(){
+  const todayStr = new Date().toISOString().split('T')[0];
+  const container = document.getElementById('staffModalContainer');
+  
+  function renderModalContent(filterDate){
+    const submissions = getAllSubmissions();
+    const filtered = submissions.filter(item => {
+      if(!filterDate) return true;
+      if(!item.createdAt) return false;
+      return item.createdAt.startsWith(filterDate);
+    });
+
+    let rowsHtml = '';
+    if(filtered.length === 0){
+      rowsHtml = `<tr><td colspan="6" style="text-align:center; color:#777; padding:20px;">ไม่พบข้อมูลการลงทะเบียนในวันที่เลือก</td></tr>`;
+    } else {
+      filtered.forEach((item, index) => {
+        const fullPrefix = item.prefix === 'อื่นๆ' ? item.prefixOther : item.prefix;
+        const dateFormatted = item.createdAt ? new Date(item.createdAt).toLocaleString('th-TH') : '-';
+        const isPrinted = item.printed;
+        const statusBadge = isPrinted 
+          ? `<span class="badge-status badge-printed">พิมพ์แล้ว (${new Date(item.printedAt).toLocaleTimeString('th-TH')})</span>` 
+          : `<span class="badge-status badge-unprinted">ยังไม่เคยพิมพ์</span>`;
+
+        rowsHtml += `
+          <tr>
+            <td>${index + 1}</td>
+            <td>${esc(fullPrefix)}</td>
+            <td>${esc(item.firstname)}</td>
+            <td>${esc(item.lastname)}</td>
+            <td>${dateFormatted}<br><small style="color:#666;">${statusBadge}</small></td>
+            <td>
+              <button class="btn btn-primary" style="padding:4px 10px; font-size:12px;" onclick="printPatientDoc('${item.id}')">🖨️ พิมพ์เอกสาร PDF</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    container.innerHTML = `
+      <div class="modal-overlay" id="staffModalOverlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>🔒 ระบบจัดการสำหรับเจ้าหน้าที่ห้องเวชระเบียน รพ.พิจิตร</h3>
+            <button class="modal-close" id="closeModalBtn">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+              <div>
+                <label style="display:inline-block; font-weight:600; margin-right:8px;">กรองตามวันที่กรอกข้อมูล:</label>
+                <input type="date" id="filterDateInput" value="${filterDate||''}" style="width:160px; display:inline-block; padding:6px 10px;">
+                <button class="btn btn-ghost" id="clearDateBtn" style="padding:6px 10px; font-size:13px;">แสดงทั้งหมด</button>
+              </div>
+              <div style="font-size:13px; color:var(--ink-soft);">ทั้งหมด ${filtered.length} รายการ</div>
+            </div>
+            <div class="table-responsive">
+              <table class="staff-table">
+                <thead>
+                  <tr>
+                    <th>ลำดับ</th>
+                    <th>คำนำหน้า</th>
+                    <th>ชื่อ</th>
+                    <th>สกุล</th>
+                    <th>วันที่กรอกข้อมูล / สถานะการพิมพ์</th>
+                    <th>จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rowsHtml}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('closeModalBtn').addEventListener('click', () => { container.innerHTML = ''; });
+    document.getElementById('staffModalOverlay').addEventListener('click', (e) => { if(e.target.id === 'staffModalOverlay') container.innerHTML = ''; });
+    document.getElementById('filterDateInput').addEventListener('change', (e) => { renderModalContent(e.target.value); });
+    document.getElementById('clearDateBtn').addEventListener('click', () => { renderModalContent(''); });
+  }
+
+  renderModalContent(todayStr);
+}
+
+// Global function for printing specific patient from staff portal
+window.printPatientDoc = function(id){
+  const submissions = getAllSubmissions();
+  const item = submissions.find(s => s.id === id);
+  if(!item) return;
+
+  // Mark as printed
+  item.printed = true;
+  item.printedAt = new Date().toISOString();
+  saveAllSubmissions(submissions);
+
+  // Build print area and trigger print
+  buildPrintAreaFromData(item);
+  window.print();
+
+  // Refresh staff modal table
+  openStaffModal();
+};
+
+function buildPrintAreaFromData(patientData){
   const pa=document.getElementById('printArea');
   const now=new Date();
-  const fullPrefix = data.prefix === 'อื่นๆ' ? data.prefixOther : data.prefix;
-  const fullReligion = data.religion === 'อื่นๆ' ? data.religionOther : data.religion;
-  const fullEcRelation = data.ec_relation === 'อื่นๆ' ? data.ec_relationOther : data.ec_relation;
+  const fullPrefix = patientData.prefix === 'อื่นๆ' ? patientData.prefixOther : patientData.prefix;
+  const fullReligion = patientData.religion === 'อื่นๆ' ? patientData.religionOther : patientData.religion;
+  const fullEcRelation = patientData.ec_relation === 'อื่นๆ' ? patientData.ec_relationOther : patientData.ec_relation;
 
   pa.innerHTML=`
     <div class="p-head">
       <div>
         <h1>เอกสารลงทะเบียนผู้ป่วยใหม่ (Pre-registration) — โรงพยาบาลพิจิตร</h1>
-        <p>พิมพ์เมื่อ ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')} | เจ้าหน้าที่ห้องบัตรสั่งพิมพ์</p>
+        <p>พิมพ์เมื่อ ${now.toLocaleDateString('th-TH')} ${now.toLocaleTimeString('th-TH')} | เจ้าหน้าที่ห้องบัตรสั่งพิมพ์ (พิมพ์แล้ว)</p>
       </div>
-      ${data.photoDataUrl? `<img class="p-photo" src="${data.photoDataUrl}">` : ''}
+      ${patientData.photoDataUrl? `<img class="p-photo" src="${patientData.photoDataUrl}">` : ''}
     </div>
 
     <div class="p-sec"><h3>ข้อมูลส่วนตัว</h3><div class="p-grid">
-      <div><b>ชื่อ-นามสกุล:</b> ${esc(`${fullPrefix} ${data.firstname} ${data.lastname}`.trim())}</div>
-      <div><b>เลขบัตรประชาชน:</b> ${esc(data.nid)}</div>
-      <div><b>วัน เดือน ปี เกิด:</b> ${data.dob? esc(thaiDate(data.dob))+' (อายุ '+calcAge(data.dob)+')':'-'}</div>
-      <div><b>เพศ:</b> ${esc(data.gender)}</div>
-      <div><b>สถานภาพสมรส:</b> ${esc(data.marital)||'-'}</div>
-      <div><b>เชื้อชาติ/สัญชาติ:</b> ${esc(data.ethnicity)} / ${esc(data.nationality)}</div>
+      <div><b>ชื่อ-นามสกุล:</b> ${esc(`${fullPrefix} ${patientData.firstname} ${patientData.lastname}`.trim())}</div>
+      <div><b>เลขบัตรประชาชน:</b> ${esc(patientData.nid)}</div>
+      <div><b>วัน เดือน ปี เกิด:</b> ${patientData.dob? esc(thaiDate(patientData.dob))+' (อายุ '+calcAge(patientData.dob)+')':'-'}</div>
+      <div><b>เพศ:</b> ${esc(patientData.gender)}</div>
+      <div><b>สถานภาพสมรส:</b> ${esc(patientData.marital)||'-'}</div>
+      <div><b>เชื้อชาติ/สัญชาติ:</b> ${esc(patientData.ethnicity)} / ${esc(patientData.nationality)}</div>
       <div><b>ศาสนา:</b> ${esc(fullReligion)||'-'}</div>
-      <div><b>หมู่เลือด:</b> ${esc(data.blood)||'ไม่ทราบ'}</div>
-      <div style="grid-column:1/-1;"><b>ประวัติแพ้ยา:</b> ${esc(data.allergyDrug)}</div>
+      <div><b>หมู่เลือด:</b> ${esc(patientData.blood)||'ไม่ทราบ'}</div>
+      <div style="grid-column:1/-1;"><b>ประวัติแพ้ยา:</b> ${esc(patientData.allergyDrug)}</div>
     </div></div>
 
     <div class="p-sec"><h3>ข้อมูลการติดต่อ</h3><div class="p-grid">
-      <div style="grid-column:1/-1;"><b>ที่อยู่ปัจจุบัน:</b> ${esc(`${data.addr_no} หมู่ ${data.addr_moo} ต.${data.addr_tambon} อ.${data.addr_amphoe} จ.${data.addr_province} ${data.addr_zip}`)}</div>
-      <div><b>โทรศัพท์มือถือ:</b> ${esc(data.phone)}</div>
+      <div style="grid-column:1/-1;"><b>ที่อยู่ปัจจุบัน:</b> ${esc(`${patientData.addr_no} หมู่ ${patientData.addr_moo} ต.${patientData.addr_tambon} อ.${patientData.addr_amphoe} จ.${patientData.addr_province} ${patientData.addr_zip}`)}</div>
+      <div><b>โทรศัพท์มือถือ:</b> ${esc(patientData.phone)}</div>
     </div></div>
 
     <div class="p-sec"><h3>ผู้ติดต่อฉุกเฉิน</h3><div class="p-grid">
-      <div><b>ชื่อ-นามสกุล:</b> ${esc(data.ec_name)}</div>
+      <div><b>ชื่อ-นามสกุล:</b> ${esc(patientData.ec_name)}</div>
       <div><b>ความสัมพันธ์:</b> ${esc(fullEcRelation)}</div>
-      <div><b>ที่อยู่:</b> ${esc(data.ec_addr)||'-'}</div>
-      <div><b>เบอร์โทร:</b> ${esc(data.ec_phone)}</div>
+      <div><b>ที่อยู่:</b> ${esc(patientData.ec_addr)||'-'}</div>
+      <div><b>เบอร์โทร:</b> ${esc(patientData.ec_phone)}</div>
     </div></div>
 
     <div class="p-sign">
-      <div>ลงชื่อผู้ป่วย: ${esc(data.signName)}</div>
-      <div>ลงชื่อผู้ให้ข้อมูล: ${esc(data.infoGiverName) || '-'}</div>
+      <div>ลงชื่อผู้ป่วย: ${esc(patientData.signName)}</div>
+      <div>ลงชื่อผู้ให้ข้อมูล: ${esc(patientData.infoGiverName) || '-'}</div>
       <div>วันที่: ${now.toLocaleDateString('th-TH')}</div>
     </div>
 
@@ -901,6 +1090,13 @@ function renderAll(){
   updateCard();
   window.scrollTo({top:0, behavior:'instant'});
 }
+
+document.getElementById('btnStaffPortal').addEventListener('click', openStaffModal);
+document.getElementById('openStaffModalBtn').addEventListener('click', () => {
+  // Easter egg: click 3 times quickly or directly open staff modal
+  openStaffModal();
+});
+
 renderAll();
 </script>
 </body>
